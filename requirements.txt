@@ -1,0 +1,6 @@
+geoalchemy2 
+pygeoda 
+pytest_cov 
+pytest_tornasync 
+topojson
+geopandas
