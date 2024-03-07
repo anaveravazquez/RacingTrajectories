@@ -27,6 +27,7 @@ def record_telemetry():
             acceleration = math.sqrt(info.physics.accG[0]**2 + info.physics.accG[1]**2) 
             acceleration_x = info.physics.accG[0]  
             acceleration_y = info.physics.accG[1]  
+            acceleration_z = info.physics.accG[2]  
             laps_completed = info.graphics.completedLaps
             penaltyTime = info.graphics.penaltyTime
             world_pos_x = info.graphics.carCoordinates[0]
@@ -44,7 +45,7 @@ def record_telemetry():
 
             # Write a row of data
             writer.writerow([timestamp, laps_completed, speed, acceleration, world_pos_x, world_pos_y, world_pos_z, 
-                            acceleration_x, acceleration_y, penaltyTime, gas, brake, gear, rpm, steer_angle, 
+                            acceleration_x, acceleration_y, acceleration_z, penaltyTime, gas, brake, gear, rpm, steer_angle, 
                             heading, one_tire_dirty_level, one_tire_core_temp, pit_status])
             
             time.sleep(0.01)
