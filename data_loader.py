@@ -57,6 +57,7 @@ def load_race_data(file: str, remove_first_lap: bool = True):
     telemetry_df["Timestamp"] = telemetry_df["Timestamp"] / 1000
     telemetry_df["LapTime"] = -telemetry_df["Timestamp"].diff()
     telemetry_df["Z-Coords"] = telemetry_df["Z-Coords"] * -1
+    telemetry_df["X-Coords"] = telemetry_df["X-Coords"] * -1
     telemetry_df["NewLap"] = telemetry_df["LapTime"] > 60
     if remove_first_lap:
         telemetry_df = telemetry_df[telemetry_df["Laps Completed"] > 0]
