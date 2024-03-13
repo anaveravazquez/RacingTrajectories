@@ -10,6 +10,8 @@ def load_track_data(distance_pr_dot:float = 0):
 
     track_left_side["Z-Coords"] = track_left_side["Z-Coords"] * -1
     track_right_side["Z-Coords"] = track_right_side["Z-Coords"] * -1
+    track_left_side["X-Coords"] = track_left_side["X-Coords"] * -1
+    track_right_side["X-Coords"] = track_right_side["X-Coords"] * -1
     track_left_side["Timestamp"] = track_left_side["Timestamp"] / 1000
     track_right_side["Timestamp"] = track_right_side["Timestamp"] / 1000
 
