@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def load_track_data(distance_pr_dot:float = 0):
     track_left_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_leftside_raw.csv', index_col=False)
@@ -64,6 +65,7 @@ def load_race_data(file: str, remove_first_lap: bool = True):
     return telemetry_df
 
 if __name__ == "__main__":
+
     # Example usecase
     df_left, df_right = load_track_data()
     print("df_left.head(20)")
