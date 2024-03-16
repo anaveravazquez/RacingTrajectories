@@ -82,6 +82,71 @@ def load_race_data(file: str, remove_first_lap: bool = True):
 
     return telemetry_df
 
+
+def transform_coordinates(original_df, rotation_angle = 44.8, 
+                                        scale_x = 0.00001397, 
+                                        scale_y = 0.000009045, 
+                                        shift_x = 6.940328, 
+                                        shift_y = 50.3307159, 
+                                        center_x = 0, 
+                                        center_y = 0):
+    """
+    Transforms coordinates by rotating, scaling, and shifting.
+
+    Args:
+    original_df: a pandas dataframe with columns 'X-Coords' and 'Y-Coords'.
+    rotation_angle: rotation angle in degrees.
+    scale_x, scale_y: scaling factors for the x and y axes.
+    shift_x, shift_y: shifting values for the x and y axes.
+    center_x, center_y: the center point around which rotation is performed.
+
+    Default values:
+    
+    rotation_angle = 44.8 # More is left, less is to the right
+    scale_x = 0.00001397
+    scale_y = 0.000009045
+    shift_x = 6.940328
+    shift_y = 50.3307159
+    center_x = 0
+    center_y = 0
+
+    rotation_angle = 45.3 # More is left, less is to the right
+    scale_x = 0.00001414
+    scale_y = 0.000008989
+    shift_x = 6.940317
+    shift_y = 50.33072324
+    center_x = 0
+    center_y = 0
+
+    
+
+
+    Returns:
+    Transformed x and y coordinates as numpy arrays.
+    """
+    x = np.array(original_df['X-Coords'])
+    y = np.array(original_df['Y-Coords'])
+
+    angle_rad = np.radians(rotation_angle)
+    rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],
+                                [np.sin(angle_rad), np.cos(angle_rad)]])
+    x_shifted, y_shifted = x - center_x, y - center_y
+    original_points = np.vstack((x_shifted, y_shifted))
+
+    rotated_points = np.dot(rotation_matrix, original_points)
+    scaled_points = np.vstack((rotated_points[0] * scale_x, rotated_points[1] * scale_y))
+    transformed_points = scaled_points + np.vstack((shift_x + center_x, shift_y + center_y))
+
+    new_df = original_df.copy()
+    new_df['X-Coords'] = transformed_points[0, :]
+    new_df['Y-Coords'] = transformed_points[1, :]
+
+    return new_df
+
+
+
+
+
 if __name__ == "__main__":
 
     # Example usecase
