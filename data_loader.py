@@ -83,11 +83,11 @@ def load_race_data(file: str, remove_first_lap: bool = True):
     return telemetry_df
 
 
-def transform_coordinates(original_df, rotation_angle = 44.8, 
-                                        scale_x = 0.00001397, 
-                                        scale_y = 0.000009045, 
-                                        shift_x = 6.940328, 
-                                        shift_y = 50.3307159, 
+def transform_coordinates(original_df, rotation_angle = 45.1, 
+                                        scale_x = 0.00001406, 
+                                        scale_y = 0.000009005, 
+                                        shift_x = 6.940315, 
+                                        shift_y = 50.330715, 
                                         center_x = 0, 
                                         center_y = 0):
     """
@@ -118,7 +118,17 @@ def transform_coordinates(original_df, rotation_angle = 44.8,
     center_x = 0
     center_y = 0
 
-    
+    ### THIS  appears to be the best transformation ####
+    rotation_angle = 45.15 # More is left, less is to the right
+    scale_x = 0.00001406
+    scale_y = 0.000009005
+    shift_x = 6.940315
+    shift_y = 50.330715
+    center_x = 0
+    center_y = 0
+
+
+
 
 
     Returns:
