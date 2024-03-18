@@ -1,12 +1,39 @@
 import pandas as pd
 import numpy as np
 
+def drop_right_track_indices(df):
+    """
+    Removes bad indices from the right track dataframe in order to smooth the track.
+    """
+    # indeces_to_drop = [] #TBD.
+    # for x in indeces_to_drop:
+    #     df.drop(df.index[x], inplace=True)
+
+    return df
+
+def drop_left_track_indices(df):
+    """
+    Removes bad indices from the left track dataframe in order to smooth the track.
+    """
+    # indeces_to_drop = [] # TBD.
+    # for x in indeces_to_drop:
+    #     df.drop(df.index[x], inplace=True)
+
+    return df
+
+
 def load_track_data(distance_pr_dot:float = 0.1):
     track_left_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_leftside_raw.csv', index_col=False)
     track_right_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_rightside_raw.csv', index_col=False)
 
     track_left_side = track_left_side[["Timestamp","X-Coords", "Y-Coords", "Z-Coords"]]
     track_right_side = track_right_side[["Timestamp","X-Coords", "Y-Coords", "Z-Coords"]]
+
+    track_left_side = drop_left_track_indices(track_left_side)
+    track_right_side = drop_right_track_indices(track_right_side)
+
+    track_left_side.reset_index(inplace=True)
+    track_right_side.reset_index(inplace=True)
 
     track_left_side["Z-Coords"]   = track_left_side["Z-Coords"] * -1
     track_right_side["Z-Coords"]  = track_right_side["Z-Coords"] * -1
@@ -92,6 +119,7 @@ def transform_coordinates(original_df, rotation_angle = 45.1,
                                         center_y = 0):
     """
     Transforms coordinates by rotating, scaling, and shifting.
+    # THIS DOES NOT ACCOUNT FOR THE ALTITUDE YET !!!!!
 
     Args:
     original_df: a pandas dataframe with columns 'X-Coords' and 'Y-Coords'.
