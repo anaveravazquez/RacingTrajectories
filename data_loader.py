@@ -36,11 +36,11 @@ def fix_track_indices(df, left_right = "left"):
             new_line = np.array([np.linspace(df['X-Coords'][_start], df['X-Coords'][_end], _end-_start), 
                                     np.linspace(df['Z-Coords'][_start], df['Z-Coords'][_end], _end-_start)]).T
 
-            print("Start index ", _start)
-            print("Start coords ", df['X-Coords'][_start], df['Z-Coords'][_start])
-            print("End index ", _end)
-            print("End coords ", df['X-Coords'][_end], df['Z-Coords'][_end])
-            print("")
+            # print("Start index ", _start)
+            # print("Start coords ", df['X-Coords'][_start], df['Z-Coords'][_start])
+            # print("End index ", _end)
+            # print("End coords ", df['X-Coords'][_end], df['Z-Coords'][_end])
+            # print("")
 
             df.loc[_start:_end-1, 'X-Coords'] = new_line[:,0]
             df.loc[_start:_end-1, 'Z-Coords'] = new_line[:,1]
