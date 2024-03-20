@@ -2,83 +2,103 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import sys
-import os
+import os 
+import math
 from datetime import datetime, timedelta
 sys.path.append("../")
 from data_loader import transform_coordinates, load_track_data, load_race_data
 from prepare_laps import prepare_laps_data, get_specific_lap
 from data_visualizations import plot_track
 
-file = ""
 
 def page1():
-    global file
-    st.title("Choose a dataset to visualize:")
+    st.title("Choose a dataset to visualize")
     # create an option to choose between the different csv files
-    file_options = [x for x in os.listdir("../Data/Telemetry_data") if x.endswith(".csv")]
-    file = st.selectbox("Select a dataset", file_options)
-    laps_df, lap_times = prepare_laps_data(use_file=file)
+    file_options = ["Ana", "Emil"]
+    name = st.selectbox("Select a dataset", file_options)
+
+    laps_df, lap_times = prepare_laps_data(name = name)
+    avg_lap_time = lap_times["Lap Time"].apply(lambda x: float(x.split(":")[0]) * 60 + float(x.split(":")[1])).mean()
+    avg_lap_time_min = str(math.floor(avg_lap_time / 60)) 
+    avg_lap_time_sec = str(round(avg_lap_time % 60, 3))
+    # avg_lap_time_ms
+    if len(avg_lap_time_sec.split(".")[0]) == 1:
+        avg_lap_time_sec = "0"+avg_lap_time_sec
+    avg_lap_time = avg_lap_time_min + ":" + avg_lap_time_sec
+    # Display Total Laps and Best Lap but add space between the two
+    st.markdown(f"```\nTotal Laps: {len(lap_times)}             Best Lap: {lap_times['Lap Time'][0]}             Avg. Lap: {avg_lap_time}\n```", unsafe_allow_html=True)
+
 
     lap_times = lap_times.reset_index(drop=True)
-    # height = 45 + 35 * len(lap_times)
-    height = 420
+    height = 450
     st.dataframe(lap_times, width=1000, height=height)
 
+    # Storing the data in the cache (session state)
+    st.session_state['name'] = name
+    
+    st.session_state['laps_df'] = laps_df
+    st.session_state['lap_times'] = lap_times
+
+    left_side_df, right_side_df = load_track_data()
+    left_side_df = transform_coordinates(left_side_df)
+    right_side_df = transform_coordinates(right_side_df)
+
+    st.session_state['left_side_df'] = left_side_df
+    st.session_state['right_side_df'] = right_side_df
+
+
+
 def page2():
-    global file
-    st.title("Page 2: Plotly Visualization")
-    # Call your function to get the Plotly figure
-    plotly_fig = plot_track(file)
+
+    st.title("Overview of Lap")
+    # Crete an element where you can select the lap number that is not a slider 
+    st.write("Select a lap number to visualize")
+    lap_times = st.session_state['lap_times']
+    laps_df = st.session_state['laps_df']
+    left_side_df = st.session_state['left_side_df']
+    right_side_df = st.session_state['right_side_df']
+
+    list_of_lap_options = lap_times["Lap Number"].tolist()
+    list_of_lap_times   = lap_times["Lap Time"].tolist()
+    list_of_lap_options = [str(x) +  "."*40 + list_of_lap_times[idx]  for idx,x in enumerate(list_of_lap_options)]
+
+    lap_number = st.selectbox("Select a lap number", list_of_lap_options)
+    lap_number = int(lap_number.split(".")[0])
+
+    cur_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
+    plotly_fig = plot_track(cur_lap_df, left_side_df, right_side_df)
     st.plotly_chart(plotly_fig, use_container_width=True)
 
 def page3():
-    global file
+
     st.title("Page 3: Visualization Title")
     # Your code for visualization goes here
 
 def page4():
-    global file
+
     st.title("Page 4: Visualization Title")
     # Your code for visualization goes here
 
 def page5():
-    global file
+
     st.title("Page 5: Visualization Title")
     # Your code for visualization goes here
 
 def page6():
-    global file
+
     st.title("Page 6: Visualization Title")
     # Your code for visualization goes here
 
-def page7():
-    global file
-    st.title("Page 7: Visualization Title")
-    # Your code for visualization goes here
+# def page7():
+#     global name
+#     st.title("Page 7: Visualization Title")
+#     # Your code for visualization goes here
 
-def page8():
-    global file
-    st.title("Page 8: Visualization Title")
-    # Your code for visualization goes here
+# def page8():
+#     global name
+#     st.title("Page 8: Visualization Title")
+#     # Your code for visualization goes here
 
-
-
-
-# Initialize or increment the counter in session state
-if 'last_refresh' not in st.session_state:
-    # Set the initial value of the timer to the current time
-    st.session_state['last_refresh'] = datetime.now()
-
-# Function to refresh the page
-def refresh_page():
-    # Update the 'last_refresh' time to current time
-    st.session_state['last_refresh'] = datetime.now()
-    # Force a rerun of the script
-    st.experimental_rerun()
-
-# Check if five seconds have passed since the last refresh
-if datetime.now() - st.session_state['last_refresh'] > timedelta(seconds=5):
-    refresh_page()
 
 
 # Dictionary of pages
@@ -88,9 +108,7 @@ pages = {
     "Page 3": page3,
     "Page 4": page4,
     "Page 5": page5,
-    "Page 6": page6,
-    "Page 7": page7,
-    "Page 8": page8,
+    "Page 6": page6
 }
 
 # Sidebar for navigation

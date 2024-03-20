@@ -14,14 +14,8 @@ from prepare_laps import prepare_laps_data, get_specific_lap
 
 
 
-def plot_track(use_file : str, lap_number: int = 1, lap_placement: int = 1 ):
-    laps_df, lap_times = prepare_laps_data(use_file=use_file)
-    left_side_df, right_side_df = load_track_data()
-    left_side_df = transform_coordinates(left_side_df)
-    right_side_df = transform_coordinates(right_side_df)
-
-    cur_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
-
+def plot_track(cur_lap_df, left_side_df, right_side_df):
+ 
     # Setting up the initial view for the map
     center_lat = cur_lap_df.iloc[0]['Latitude']  - 0.0048
     center_lon = cur_lap_df.iloc[0]['Longitude'] - 0.005
@@ -37,7 +31,7 @@ def plot_track(use_file : str, lap_number: int = 1, lap_placement: int = 1 ):
                 lat=df['Latitude'],
                 lon=df['Longitude'],
                 mode='lines',
-                line=dict(width=1, color=color),
+                line=dict(width=0.7, color=color),
                 name=name
             )
         )
