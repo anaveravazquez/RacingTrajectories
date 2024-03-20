@@ -79,8 +79,12 @@ def fix_track_indices(df, left_right = "left"):
 
 
 def load_track_data(distance_pr_dot:float = 0.1):
-    track_left_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_leftside_raw.csv', index_col=False)
-    track_right_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_rightside_raw.csv', index_col=False)
+    try:
+        track_left_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_leftside_raw.csv', index_col=False)
+        track_right_side = pd.read_csv(f'Data/Map_details/nurburgring_GP_track_rightside_raw.csv', index_col=False)
+    except FileNotFoundError:
+        track_left_side = pd.read_csv(f'../Data/Map_details/nurburgring_GP_track_leftside_raw.csv', index_col=False)
+        track_right_side = pd.read_csv(f'../Data/Map_details/nurburgring_GP_track_rightside_raw.csv', index_col=False)
 
     track_left_side = track_left_side[["Timestamp","X-Coords", "Y-Coords", "Z-Coords", 'Speed (Km/h)']]
     track_right_side = track_right_side[["Timestamp","X-Coords", "Y-Coords", "Z-Coords", 'Speed (Km/h)']]
@@ -148,7 +152,10 @@ def reduce_dataframe(df, distance_pr_dot):
 
 
 def load_race_data(file: str, remove_first_lap: bool = True):
-    telemetry_df = pd.read_csv(f'Data/Telemetry_data/{file}', index_col=False)
+    try:
+        telemetry_df = pd.read_csv(f'Data/Telemetry_data/{file}', index_col=False)
+    except FileNotFoundError:
+        telemetry_df = pd.read_csv(f'../Data/Telemetry_data/{file}', index_col=False)
 
     telemetry_df["Timestamp"] = telemetry_df["Timestamp"] / 1000
     telemetry_df["LapTime"]   = -telemetry_df["Timestamp"].diff()
@@ -238,6 +245,8 @@ def transform_coordinates(original_df, rotation_angle = 45.1,
     new_df = original_df.copy()
     new_df['X-Coords'] = transformed_points[0, :]
     new_df['Y-Coords'] = transformed_points[1, :]
+    new_df["Longitude"] = new_df["X-Coords"]
+    new_df["Latitude"] = new_df["Y-Coords"]
 
     return new_df
 
