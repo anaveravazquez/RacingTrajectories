@@ -45,13 +45,21 @@ def fix_track_indices(df, left_right = "left"):
             df.loc[_start:_end-1, 'X-Coords'] = new_line[:,0]
             df.loc[_start:_end-1, 'Z-Coords'] = new_line[:,1]
 
-        x = 50
+        x = 100
         tmp_df = df.copy()
-        tmp_df["X-Coords"] = tmp_df["X-Coords"].shift(-x//2)
-        tmp_df["Y-Coords"] = tmp_df["Y-Coords"].shift(-x//2)
+            # tmp_df["X-Coords"] = tmp_df["X-Coords"].shift(-x//2)
+            # tmp_df["Y-Coords"] = tmp_df["Y-Coords"].shift(-x//2)
 
-        df.loc[end:end, 'X-Coords'] = tmp_df.loc[start:end,   'X-Coords'].rolling(window=x, min_periods=1).mean()
-        df.loc[end:end, 'Y-Coords'] = tmp_df.loc[start:end  , 'Y-Coords'].rolling(window=x, min_periods=1).mean() 
+        df.loc[end:end, 'X-Coords'] = tmp_df.loc[start:end,   'X-Coords'].rolling(window=x, min_periods=1, center=True).mean()
+        df.loc[end:end, 'Y-Coords'] = tmp_df.loc[start:end  , 'Y-Coords'].rolling(window=x, min_periods=1, center=True).mean() 
+
+        # df.loc[end:end, 'X-Coords'] = df.loc[start:end,   'X-Coords'].rolling(window=x, min_periods=1, center=True).mean()
+        # df.loc[end:end, 'Y-Coords'] = df.loc[start:end  , 'Y-Coords'].rolling(window=x, min_periods=1, center=True).mean() 
+
+        # end += 10
+        # for i in range(1, x//2):
+        #     df.loc[end-i:end-i, 'X-Coords'] = df.loc[end-i:end,   'X-Coords'].rolling(window=x, min_periods=1, center=True).mean()[end-i]
+        #     df.loc[end-i:end-i, 'Y-Coords'] = df.loc[end-i:end  , 'Y-Coords'].rolling(window=x, min_periods=1, center=True).mean()[end-i]
 
         idx += 1
         # Generate new indices for interpolation from pre_start to post_end
