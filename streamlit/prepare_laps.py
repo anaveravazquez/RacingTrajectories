@@ -25,13 +25,13 @@ def merge_lap_data(name):
             tmp_laps_df = load_race_data(file = file, remove_first_lap= True)
             tmp_laps_df = transform_coordinates(tmp_laps_df)
             if idx > 0:
-                print("highest_laps_completed : ", highest_laps_completed)
-                print("min tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].min())
-                print("max tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].max())
+                # print("highest_laps_completed : ", highest_laps_completed)
+                # print("min tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].min())
+                # print("max tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].max())
 
                 tmp_laps_df["Laps Completed"] = tmp_laps_df["Laps Completed"] + highest_laps_completed
-                print("min tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].min())
-                print("max tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].max())
+                # print("min tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].min())
+                # print("max tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].max())
                 laps_df = pd.concat([laps_df, tmp_laps_df], ignore_index=True)
                 # list all the coutns of the values in a column called "Lap Completed"
             elif idx == 0:
@@ -65,7 +65,6 @@ def prepare_laps_data(name : str):
     # Add Lap Placement to each run
     for i in range(len(lap_time_indeces) - 1):
         laps_df.loc[lap_time_indeces[i]:lap_time_indeces[i + 1], "Lap Placement"] = i + 1
-
     lap_times = lap_times[["Lap Placement", "Laps Completed", "LapTime"]]
     lap_times = lap_times.rename(columns={"LapTime": "Lap Time", "Laps Completed": "Lap Number"})
     # change lap time to minutes and seconds format
@@ -94,9 +93,9 @@ if __name__ == "__main__":
     # count unique values in a column called "Lap Placement"
 
     # laps_df, lap_times = prepare_laps_data(use_file="assetto_corsa_telemetry_F1_Emil_test2_30Laps.csv")
-    # print("laps_df.head(): ", laps_df.head())
+    print("laps_df.head(): ", laps_df.head())
     # print("")
-    # print("lap_times.head(): ", lap_times.head())
+    print("lap_times.head(): ", lap_times.head())
 
     # print("")
     # lap_test = get_specific_lap(laps_df, lap_number=5)

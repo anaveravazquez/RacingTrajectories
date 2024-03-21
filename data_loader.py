@@ -157,14 +157,13 @@ def load_race_data(file: str, remove_first_lap: bool = True):
     except FileNotFoundError:
         telemetry_df = pd.read_csv(f'../Data/Telemetry_data/{file}', index_col=False)
 
-    timestamps = telemetry_df["Timestamp"].to_list()
-    telemetry_df["LapTime"]   = [timestamps[i-1] - timestamps[i] for i in range(len(timestamps))] # .diff() had inconsistent results for some laps. Couldn't solve it.
+    telemetry_df["Timestamp"] = telemetry_df["Timestamp"] / 1000
+    telemetry_df["LapTime"]   = -telemetry_df["Timestamp"].diff() 
     telemetry_df["Z-Coords"]  = telemetry_df["Z-Coords"] * -1
     telemetry_df["X-Coords"]  = telemetry_df["X-Coords"] * -1
-    telemetry_df["NewLap"] = telemetry_df["LapTime"] > 60*1000
+    telemetry_df["NewLap"]    = telemetry_df["LapTime"] > 60
     if remove_first_lap:
         telemetry_df = telemetry_df[telemetry_df["Laps Completed"] > 0]
-    telemetry_df["Timestamp"] = telemetry_df["Timestamp"] / 1000
 
     # Rename columns
     telemetry_df.rename(columns={"X-Coords": "Y-Coords", 
