@@ -14,11 +14,14 @@ from prepare_laps import prepare_laps_data, get_specific_lap
 
 
 
-def plot_track(cur_lap_df, left_side_df, right_side_df):
+def plot_track(cur_lap_df, left_side_df, right_side_df, zoom = 14.4, center_dict = {"Lat":50.33082887757034 , "Lon":6.942782900079108}):
  
     # Setting up the initial view for the map
-    center_lat = cur_lap_df.iloc[0]['Latitude']  - 0.0048
-    center_lon = cur_lap_df.iloc[0]['Longitude'] - 0.005
+    center_lat = center_dict["Lat"]
+    center_lon = center_dict["Lon"]
+
+    print("center_lat : ", center_lat)
+    print("center_lon : ", center_lon)
 
     # Using Plotly Express to create the scatter map for current lap data
     fig = px.scatter_mapbox(cur_lap_df, lat="Latitude", lon="Longitude", color="Speed (Km/h)", hover_name="Speed (Km/h)",
@@ -45,7 +48,7 @@ def plot_track(cur_lap_df, left_side_df, right_side_df):
         mapbox=dict(
             center={"lat": center_lat, "lon": center_lon},
             style="carto-darkmatter",
-            zoom=14.4
+            zoom=zoom
         )
     )
 
@@ -53,6 +56,21 @@ def plot_track(cur_lap_df, left_side_df, right_side_df):
 
 
 if __name__ == "__main__":
-    fig = plot_track(use_file="assetto_corsa_telemetry_F1_Emil_test2_30Laps.csv", lap_placement=1)
+
+    # Get the Laps data
+    laps_df, lap_times = prepare_laps_data(name="Ana")
+    cur_lap_df = get_specific_lap(laps_df, lap_number=1) 
+
+    # Get the left and right side of the track
+    left_side_df, right_side_df = load_track_data()
+    left_side_df = transform_coordinates(left_side_df)
+    right_side_df = transform_coordinates(right_side_df)
+
+    # Plot the track
+    zoom = 15.9
+    # Latitude is The Y-axis (More is North, Less is South)
+    # Longitude is The X-axis (More is East, Less is West)
+    center_dict = {"Lat":50.3264 , "Lon":6.9373}
+    fig = plot_track(cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
     fig.show()
     

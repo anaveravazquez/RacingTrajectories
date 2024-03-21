@@ -66,23 +66,77 @@ def page2():
     lap_number = int(lap_number.split(".")[0])
 
     cur_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
-    plotly_fig = plot_track(cur_lap_df, left_side_df, right_side_df)
+
+    zoom = 14.4
+    center_dict = {"Lat":50.33082887757034 , "Lon":6.942782900079108}
+    plotly_fig = plot_track(cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
     st.plotly_chart(plotly_fig, use_container_width=True)
+
+    st.session_state['laps_df'] = laps_df
+    st.session_state['lap_times'] = lap_times
+    st.session_state['cur_lap_df'] = cur_lap_df
+    st.session_state['lap_number'] = lap_number
 
 def page3():
 
-    st.title("Page 3: Visualization Title")
-    # Your code for visualization goes here
+    st.title("Corner 1")
+    lap_times = st.session_state['lap_times']
+    laps_df = st.session_state['laps_df']
+    left_side_df = st.session_state['left_side_df']
+    right_side_df = st.session_state['right_side_df']
+    lap_number = st.session_state['lap_number']
+    cur_lap_df = st.session_state['cur_lap_df']
+
+    # Latitude is The Y-axis (More is North (up), Less is South (down))
+    # Longitude is The X-axis (More is East (left), Less is West (right))
+    center_dict = {"Lat":50.3325 , "Lon":6.9402}
+    zoom = 16.6
+
+    plotly_fig = plot_track(cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
+    st.plotly_chart(plotly_fig, use_container_width=True)
+
 
 def page4():
 
-    st.title("Page 4: Visualization Title")
-    # Your code for visualization goes here
+    # Needs to be implemented
+    st.title("Corner 3")
+    st.write("Needs to be implemented...")
+
+    lap_times = st.session_state['lap_times']
+    laps_df = st.session_state['laps_df']
+    left_side_df = st.session_state['left_side_df']
+    right_side_df = st.session_state['right_side_df']
+    lap_number = st.session_state['lap_number']
+    cur_lap_df = st.session_state['cur_lap_df']
+
+    # Latitude is The Y-axis (More is North (up), Less is South (down))
+    # Longitude is The X-axis (More is East (left), Less is West (right))
+    center_dict = {"Lat":50.3264 , "Lon":6.9373}
+    zoom = 15.8
+
+    plotly_fig = plot_track(cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
+    st.plotly_chart(plotly_fig, use_container_width=True)
+
 
 def page5():
 
-    st.title("Page 5: Visualization Title")
-    # Your code for visualization goes here
+    st.title("Corner 3")
+    lap_times = st.session_state['lap_times']
+    laps_df = st.session_state['laps_df']
+    left_side_df = st.session_state['left_side_df']
+    right_side_df = st.session_state['right_side_df']
+    lap_number = st.session_state['lap_number']
+    cur_lap_df = st.session_state['cur_lap_df']
+
+    # Latitude is The Y-axis (More is North (up), Less is South (down))
+    # Longitude is The X-axis (More is East (left), Less is West (right))
+
+    # FIX ME
+    # center_dict = {"Lat":50.3264 , "Lon":6.9373}
+    # zoom = 15.8
+
+    # plotly_fig = plot_track(cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
+    # st.plotly_chart(plotly_fig, use_container_width=True)
 
 def page6():
 
@@ -104,10 +158,10 @@ def page6():
 # Dictionary of pages
 pages = {
     "Select Dataset": page1,
-    "Page 2": page2,
-    "Page 3": page3,
-    "Page 4": page4,
-    "Page 5": page5,
+    "Whole Track": page2,
+    "Section 1"  : page3,
+    "Section 2" : page4,
+    "Section 3": page5,
     "Page 6": page6
 }
 
