@@ -98,8 +98,7 @@ def page3():
 
 def page4():
 
-    # Needs to be implemented
-    st.title("Corner 3")
+    st.title("Corner 2")
 
     lap_times = st.session_state['lap_times']
     laps_df = st.session_state['laps_df']
