@@ -100,7 +100,6 @@ def page4():
 
     # Needs to be implemented
     st.title("Corner 3")
-    st.write("Needs to be implemented...")
 
     lap_times = st.session_state['lap_times']
     laps_df = st.session_state['laps_df']
@@ -121,6 +120,8 @@ def page4():
 def page5():
 
     st.title("Corner 3")
+    st.write("Needs to be implemented...")
+
     lap_times = st.session_state['lap_times']
     laps_df = st.session_state['laps_df']
     left_side_df = st.session_state['left_side_df']
