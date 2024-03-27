@@ -28,10 +28,17 @@ def update_global(name):
     # if the name is different, then we need to update the track data and the name
     if 'name' not in st.session_state or st.session_state['name'] != name:
         st.session_state['name'] = name
-    laps_df, lap_times = prepare_laps_data(name = name)
-    lap_times = lap_times.reset_index(drop=True)
-    st.session_state['laps_df'] = laps_df
-    st.session_state['lap_times'] = lap_times
+    
+    if f'laps_df_{name}' in st.session_state and f'lap_times_{name}' in st.session_state:
+        st.session_state['laps_df'] = st.session_state[f'laps_df_{name}']
+        st.session_state['lap_times'] = st.session_state[f'lap_times_{name}']
+    else: 
+        laps_df, lap_times = prepare_laps_data(name = name)
+        lap_times = lap_times.reset_index(drop=True)
+        st.session_state['laps_df'] = laps_df
+        st.session_state['lap_times'] = lap_times
+        st.session_state[f'laps_df_{name}'] = laps_df
+        st.session_state[f'lap_times_{name}'] = lap_times
 
 
 def selected_lap_number(name):
