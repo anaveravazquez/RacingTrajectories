@@ -9,6 +9,8 @@ import math
 import sys
 import os
 
+pd.set_option('display.max_rows', None)
+
 sys.path.append("../")
 from data_loader import transform_coordinates, load_track_data, load_race_data
 
@@ -45,7 +47,7 @@ def merge_lap_data(name):
     return laps_df
 
 
-def prepare_laps_data(name : str):
+def re_prepare_laps_data(name : str):
 
     laps_df = merge_lap_data(name)
     
@@ -68,9 +70,38 @@ def prepare_laps_data(name : str):
     lap_times = lap_times[["Lap Placement", "Laps Completed", "LapTime"]]
     lap_times = lap_times.rename(columns={"LapTime": "Lap Time", "Laps Completed": "Lap Number"})
     # change lap time to minutes and seconds format
-    lap_times["Lap Time"] = lap_times["Lap Time"].apply(lambda x: str(math.floor(x / 60)) + ":" + str(round(x % 60, 3)))
+    lap_times_formatted = lap_times["Lap Time"].apply(lambda x: str(math.floor(x / 60)) + ":" + str(round(x % 60, 3)))
+    lap_times_unformatted = lap_times["Lap Time"]
+    
+    lap_placements = lap_times["Lap Placement"]
+    lap_numbers = lap_times["Lap Number"]
+    for i in range(len(lap_times_formatted)):
+        print(f"Lap Placement: {lap_placements[i]:<4}    Lap Number: {lap_numbers[i]:<4}    Unformatted: {lap_times_unformatted[i]:<12} Formatted: {lap_times_formatted[i]:<12}")
+
+    lap_times["Lap Time"] = lap_times_formatted
+
+    # Removing redundant columns
+    laps_df = laps_df[["Timestamp", "LapTime", "Speed (Km/h)", "X-Coords", "Y-Coords", "Z-Coords", "Latitude", "Longitude", "Lap Placement", "Laps Completed"]]
+
+    if not os.path.exists("laps_data"):
+        os.makedirs("laps_data")
+    laps_df.to_csv(f"laps_data/{name}_laps_data.csv", index=False)
+    lap_times.to_csv(f"laps_data/{name}_lap_times.csv", index=False)
 
     return laps_df, lap_times
+
+
+def prepare_laps_data(name : str):
+
+    if os.path.exists(f"laps_data/{name}_laps_data.csv") and os.path.exists(f"laps_data/{name}_lap_times.csv"):
+        print("Reading from file")
+        laps_df = pd.read_csv(f"laps_data/{name}_laps_data.csv")
+        lap_times = pd.read_csv(f"laps_data/{name}_lap_times.csv")
+    else:
+        print("Constructing from file")
+        laps_df, lap_times = re_prepare_laps_data(name)
+    return laps_df, lap_times
+
 
 
 def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
@@ -87,15 +118,19 @@ def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
 if __name__ == "__main__":
 
     # laps_df = merge_lap_data(name="Emil")
-    laps_df,lap_times = prepare_laps_data(name ="Emil")
+    # laps_df,lap_times = prepare_laps_data(name ="Emil")
+    laps_df,lap_times = re_prepare_laps_data(name ="Emil")
+
+    # Count Lap Number
+    print("lap_times['Lap Number'].value_counts(): ", lap_times["Lap Number"].value_counts().sort_values()) # count unique values in a column called "Lap Number"
 
 
     # count unique values in a column called "Lap Placement"
 
     # laps_df, lap_times = prepare_laps_data(use_file="assetto_corsa_telemetry_F1_Emil_test2_30Laps.csv")
-    print("laps_df.head(): ", laps_df.head())
+    # print("laps_df.head(): ", laps_df.head())
     # print("")
-    print("lap_times.head(): ", lap_times.head())
+    # print("lap_times.head(): ", lap_times.head())
 
     # print("")
     # lap_test = get_specific_lap(laps_df, lap_number=5)
