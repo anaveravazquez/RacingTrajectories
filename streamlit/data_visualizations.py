@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as colors
 import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -14,23 +15,57 @@ from data_loader import transform_coordinates, load_track_data, load_race_data
 from prepare_laps import prepare_laps_data, get_specific_lap
 
 
+def plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = 14.4, 
+                center_dict = {"Lat":50.33082887757034 , "Lon":6.942782900079108}, 
+                width = 1400, height = 700, bearing = -50, size = 4,
+                player_name = "Player", opponent_name = "Opponent"):
+    
+    with open ("./mapbox_token", "r") as file:
+        mapbox_access_token = file.read()
+        px.set_mapbox_access_token(mapbox_access_token)
 
-def plot_track(cur_lap_df, left_side_df, right_side_df, zoom = 14.4, center_dict = {"Lat":50.33082887757034 , "Lon":6.942782900079108}, width = 1400, height = 450):
- 
     # Setting up the initial view for the map
     center_lat = center_dict["Lat"]
     center_lon = center_dict["Lon"]
 
-    print("center_lat : ", center_lat)
-    print("center_lon : ", center_lon)
+    # Normalize the 'Speed (Km/h)' column for both datasets to use the same color scale
+    norm = colors.Normalize(vmin=0, vmax=500)
 
-    # Using Plotly Express to create the scatter map for current lap data, and add ["Timestamp (s)", "Speed (Km/h)", "Acceleration", X-Coords, Y-Coords] as hover data
+    scalar_map = cm.ScalarMappable(norm=norm, cmap='Greens_r')
+    scalar_map_opp = cm.ScalarMappable(norm=norm, cmap='Oranges_r')
+    
+    # Convert speed values to colors
+    opp_speed_colors = [colors.rgb2hex(scalar_map.to_rgba(speed)) for speed in opp_cur_lap_df['Speed (Km/h)']]
+    speed_colors =     [colors.rgb2hex(scalar_map_opp.to_rgba(speed)) for speed in cur_lap_df['Speed (Km/h)']]
 
-    fig = px.scatter_mapbox(cur_lap_df, lat="Latitude", lon="Longitude", color="Speed (Km/h)", hover_name="Speed (Km/h)",
-                            size=[1]*len(cur_lap_df),  size_max = 3,
-                            color_continuous_scale="Inferno", hover_data=["Timestamp", "LapTime", "Speed (Km/h)", "X-Coords", "Y-Coords"])
+    fig = go.Figure()
 
-    fig.update_layout(mapbox_bearing=-50)
+    fig.add_trace(
+        go.Scattermapbox(
+            lat=cur_lap_df['Latitude'],
+            lon=cur_lap_df['Longitude'],
+            mode='markers',
+            marker=dict(size=size, color=speed_colors),
+            # Create Text which neatfully displays the "Timestamp", "Speed (Km/h)"
+            text = cur_lap_df.apply(lambda x: f"Timestamp: {x['Timestamp']}<br>Speed (Km/h): {x['Speed (Km/h)']}", axis=1),
+            name= player_name,
+            showlegend=False
+        )
+    )
+
+    fig.add_trace(
+        go.Scattermapbox(
+            lat=opp_cur_lap_df['Latitude'],
+            lon=opp_cur_lap_df['Longitude'],
+            mode='markers',
+            marker=dict(size=size, color=opp_speed_colors),
+            text= opp_cur_lap_df.apply(lambda x: f"Timestamp: {x['Timestamp']}<br>Speed (Km/h): {x['Speed (Km/h)']}", axis=1),
+            name= opponent_name,
+            showlegend=False
+        )
+    )
+
+    fig.update_layout(mapbox_bearing=bearing)
     # Adding left and right side data as red lines
     for df, name, color in zip([left_side_df, right_side_df], ['Left Side', 'Right Side'], ['red', 'red']):
         fig.add_trace(
@@ -38,11 +73,12 @@ def plot_track(cur_lap_df, left_side_df, right_side_df, zoom = 14.4, center_dict
                 lat=df['Latitude'],
                 lon=df['Longitude'],
                 mode='lines',
-                line=dict(width=0.7, color=color),
-                name=name
+                line=dict(width=0.4, color=color),
+                name=name,
+                hoverinfo='none',
+                showlegend=False
             )
         )
-
 
     fig.update_layout(
         margin={"r": 0, "t": 0, "l": 0, "b": 0},
@@ -51,91 +87,66 @@ def plot_track(cur_lap_df, left_side_df, right_side_df, zoom = 14.4, center_dict
         mapbox=dict(
             center={"lat": center_lat, "lon": center_lon},
             style="carto-darkmatter",
-            zoom=zoom
-        )
+            # style="mapbox://styles/mapbox/satellite-streets-v11",
+            zoom=zoom),
     )
+
+    # Doesnt work Right now 
+    # fig.update_layout(
+    #     coloraxis=dict(
+    #         colorbar_x=1,  # Positions the first color bar to the right of the plot
+    #         colorbar_xanchor='left'
+    #     ),
+    #     coloraxis2=dict(
+    #         colorbar_x=1.05,  # Positions the second color bar next to the first one
+    #         colorbar_xanchor='left'
+    #     )
+    # )
+
+    # This also doesn't work right now 
+    # add_slider_to_map(fig)
 
     return fig
 
 
-def color_interpolator_and_speed_thresholds(color1 = "#ff9500", color2 = "#00ffff", min_speed = 0, max_speed = 360, interval = 10):
-    # Convert hex to RGB
+def add_slider_to_map(fig):
 
-    speed_thresholds = list(range(min_speed, max_speed, interval))  # From 0 to 350 with intervals of 10 km/h
-    num_colors = len(speed_thresholds) + 1  # Number of colors to interpolate
-    color1_rgb = np.array(mcolors.hex2color(color1))
-    color2_rgb = np.array(mcolors.hex2color(color2))
-    color_sequence = [mcolors.to_hex(color1_rgb * (1 - i) + color2_rgb * i) for i in np.linspace(0, 1, num_colors)]
-    
-    print("color_sequence len: ", len(color_sequence))
-    print("speed_thresholds len: ", len(speed_thresholds))
+    steps = []
+    for i in range(int(50), int(300), 10): 
+        i = i /10
+        step = dict(
+            method="update",
+            args=[{'visible': [
+                ((cur_lap_df['Timestamp'] >= i) & (cur_lap_df['Timestamp'] < i + 60)).tolist(),
+                ((opp_cur_lap_df['Timestamp'] >= i) & (opp_cur_lap_df['Timestamp'] < i + 60)).tolist(),
+                True,  # Keep the track visible
+                True   # Keep the track visible
+            ]}],
+        )
+        steps.append(step)
 
-    return color_sequence, speed_thresholds
+    sliders = [dict(
+        active=0,
+        currentvalue={"prefix": "Timestamp: "},
+        pad={"t": 50},
+        steps=steps
+    )]
+
+    fig.update_layout(sliders=sliders)
+
+    return fig
 
 
-# def plot_track(cur_lap_df, left_side_df, right_side_df, zoom = 14.4, center_dict = {"Lat":50.33082887757034 , "Lon":6.942782900079108}, width = 1400, height = 450):
- 
-#     # Example speed thresholds (adjust based on your data)
-#     colors, speed_thresholds = color_interpolator_and_speed_thresholds()
-#     center_lat = center_dict["Lat"]
-#     center_lon = center_dict["Lon"]
-
-#     # Create a new DataFrame to store segments
-#     segments = []
-
-#     # Iterate through your DataFrame to create segments
-#     last_index = 0
-#     current_color = 0
-#     for i in range(1, len(cur_lap_df)):
-#         # Check if the speed has changed to a different range
-#         if not (cur_lap_df['Speed (Km/h)'][i-1] < speed_thresholds[current_color] == cur_lap_df['Speed (Km/h)'][i] < speed_thresholds[current_color]):
-#             # Append the segment
-#             segments.append((last_index, i, colors[current_color]))
-#             last_index = i  # Update the last index
-#             # Update the current color based on the new speed
-#             current_color = sum(s < cur_lap_df['Speed (Km/h)'][i] for s in speed_thresholds)
-#         # For the last segment
-#         if i == len(cur_lap_df) - 1:
-#             segments.append((last_index, i + 1, colors[current_color]))
-
-#     # Initialize the figure
-#     fig = go.Figure()
-
-#     # Adding each segment as a separate trace
-#     for start, end, color in segments:
-#         segment_df = cur_lap_df.iloc[start:end]
-#         fig.add_trace(
-#             go.Scattermapbox(
-#                 lat=segment_df['Latitude'],
-#                 lon=segment_df['Longitude'],
-#                 mode='lines',
-#                 line=dict(width=2, color=color),
-#                 name=f'Speed range {color}'  # This can be adjusted or removed as needed
-#             )
-#         )
-
-#     # Your existing settings for the map layout
-#     fig.update_layout(
-#         title="Track Map",
-#         margin={"r": 0, "t": 0, "l": 0, "b": 0},
-#         width  = width,
-#         height = height,
-#         mapbox=dict(
-#             center={"lat": center_lat, "lon": center_lon},  # Adjust with your actual center
-#             style="carto-darkmatter",
-#             zoom=zoom  # Adjust with your actual zoom level
-#         ),
-#         showlegend=False  # You can turn the legend on or off
-#     )
-
-#     return fig 
 
 
 if __name__ == "__main__":
 
     # Get the Laps data
     laps_df, lap_times = prepare_laps_data(name="Ana")
-    cur_lap_df = get_specific_lap(laps_df, lap_number=1) 
+    cur_lap_df = get_specific_lap(laps_df, lap_number=36) 
+
+    opp_laps_df, opp_lap_times = prepare_laps_data(name="Emil")
+    opp_cur_lap_df = get_specific_lap(opp_laps_df, lap_number=51)
 
     # Get the left and right side of the track
     left_side_df, right_side_df = load_track_data()
@@ -147,6 +158,7 @@ if __name__ == "__main__":
     # Longitude is The X-axis (More is East, Less is West)
     zoom = 14.9
     center_dict = {"Lat":50.332, "Lon":6.941}
-    fig = plot_track(cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
+    fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, 
+                    center_dict = center_dict, player_name="Ana", opponent_name="Emil")
     fig.show()
     
