@@ -159,20 +159,28 @@ def load_race_data(file: str, remove_first_lap: bool = True):
 
     telemetry_df["Timestamp"] = telemetry_df["Timestamp"] / 1000
     telemetry_df["LapTime"]   = -telemetry_df["Timestamp"].diff() 
+    telemetry_df["NewLap"]    = telemetry_df["LapTime"] > 60  # More than 60 seconds between two timestamps is a new lap
+    telemetry_df["LapTime"]   = telemetry_df["Timestamp"].shift(1)
+
     telemetry_df["Z-Coords"]  = telemetry_df["Z-Coords"] * -1
     telemetry_df["X-Coords"]  = telemetry_df["X-Coords"] * -1
-    telemetry_df["NewLap"]    = telemetry_df["LapTime"] > 60
-    if remove_first_lap:
-        telemetry_df = telemetry_df[telemetry_df["Laps Completed"] > 0]
-
+    
     # Rename columns
     telemetry_df.rename(columns={"X-Coords": "Y-Coords", 
                                  "Z-Coords": "X-Coords", 
                                  "Y-Coords": "Z-Coords"}, inplace=True)
 
+    # To fix the laps completed column because the game does not always update it in time...
+    for special_idx in telemetry_df[telemetry_df["NewLap"] == True].index:
+        correct_laps_completed = telemetry_df.loc[special_idx+10, "Laps Completed"] 
+        telemetry_df.loc[special_idx:special_idx+10, "Laps Completed"] = correct_laps_completed
 
-    telemetry_df = telemetry_df.sort_values(by=["Laps Completed", "Timestamp"])
+    if remove_first_lap:
+        telemetry_df = telemetry_df[telemetry_df["Laps Completed"] > 0]
     telemetry_df.reset_index(drop=True, inplace=True)
+
+    # print(telemetry_df[telemetry_df["NewLap"] == True])
+    # telemetry_df[["Timestamp", "Laps Completed", "NewLap", "LapTime", "Speed (Km/h)"]].to_csv("test.csv")
 
     return telemetry_df
 
@@ -258,12 +266,12 @@ if __name__ == "__main__":
 
     # Example usecase
     df_left, df_right = load_track_data()
-    print("df_left.head(20)")
-    print(df_left.head(20))
-    print("\n")
+    # print("df_left.head(20)")
+    # print(df_left.head(20))
+    # print("\n")
 
     # Example usecase
     race_df = load_race_data(file = "assetto_corsa_telemetry_F1_Emil_test1_11Laps.csv", remove_first_lap= True)
-    print("race_df.head(20)")
-    print(race_df.head(20))
+    # print("race_df.head(20)")
+    # print(race_df.head(20))
     # race_df.to_excel("test.xlsx")
