@@ -20,9 +20,9 @@ def plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = 1
                 width = 1400, height = 700, bearing = -50, size = 4,
                 player_name = "Player", opponent_name = "Opponent"):
     
-    with open ("./mapbox_token", "r") as file:
-        mapbox_access_token = file.read()
-        px.set_mapbox_access_token(mapbox_access_token)
+    # with open ("./mapbox_token", "r") as file:
+        # mapbox_access_token = file.read()
+        # px.set_mapbox_access_token(mapbox_access_token)
 
     # Setting up the initial view for the map
     center_lat = center_dict["Lat"]

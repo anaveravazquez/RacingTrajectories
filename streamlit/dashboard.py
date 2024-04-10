@@ -121,7 +121,7 @@ def page1():
             avg_lap_time_sec = "0"+avg_lap_time_sec
         avg_lap_time = avg_lap_time_min + ":" + avg_lap_time_sec
         # Display Total Laps and Best Lap but add space between the two
-        st.markdown(f"```\nTotal Laps: {len(lap_times)}               Avg. Lap: {avg_lap_time}               Best Lap: {lap_times['Lap Time'][0]}\n```", unsafe_allow_html=True)
+        st.markdown(f"```\nTotal Laps: {len(lap_times)}            Avg. Lap: {avg_lap_time}            Best Lap: {lap_times['Lap Time'][0]}\n```", unsafe_allow_html=True)
         st.dataframe(lap_times, height=height, use_container_width=True)
 
     with col2:
@@ -134,7 +134,7 @@ def page1():
             opp_avg_lap_time_sec = "0"+opp_avg_lap_time_sec
         opp_avg_lap_time = opp_avg_lap_time_min + ":" + opp_avg_lap_time_sec
         # Display Total Laps and Best Lap but add space between the two
-        st.markdown(f"```\nBest Lap: {opp_lap_times['Lap Time'][0]}               Avg. Lap: {opp_avg_lap_time}               Total Laps: {len(opp_lap_times)}\n```", unsafe_allow_html=True)
+        st.markdown(f"```\nBest Lap: {opp_lap_times['Lap Time'][0]}            Avg. Lap: {opp_avg_lap_time}            Total Laps: {len(opp_lap_times)}\n```", unsafe_allow_html=True)
         st.dataframe(opp_lap_times[["Lap Time", "Lap Number", "Lap Placement"]], use_container_width=True,  height=height)
     
     

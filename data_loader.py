@@ -142,6 +142,7 @@ def reduce_dataframe(df, distance_pr_dot):
                 rows.append(row)
                 continue
             previous_row = rows[-1]
+            # We do not use Haversine distance as the coordinates are within centimeters of each other.
             if np.sqrt((row['X-Coords'] - previous_row['X-Coords'])**2 + 
                        (row['Z-Coords'] - previous_row['Z-Coords'])**2 + 
                        (row['Y-Coords'] - previous_row['Y-Coords'])**2) >= distance_pr_dot:
