@@ -231,10 +231,6 @@ def transform_coordinates(original_df, rotation_angle = 45.1,
     center_x = 0
     center_y = 0
 
-
-
-
-
     Returns:
     Transformed x and y coordinates as numpy arrays.
     """
@@ -267,12 +263,12 @@ if __name__ == "__main__":
 
     # Example usecase
     df_left, df_right = load_track_data()
-    # print("df_left.head(20)")
-    # print(df_left.head(20))
-    # print("\n")
+    print("df_left.head(20)")
+    print(df_left.head(20))
+    print("\n")
 
     # Example usecase
     race_df = load_race_data(file = "assetto_corsa_telemetry_F1_Emil_test1_11Laps.csv", remove_first_lap= True)
-    # print("race_df.head(20)")
-    # print(race_df.head(20))
+    print("race_df.head(20)")
+    print(race_df.head(20))
     # race_df.to_excel("test.xlsx")
