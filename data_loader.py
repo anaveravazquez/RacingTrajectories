@@ -180,7 +180,6 @@ def load_race_data(file: str, remove_first_lap: bool = True):
         telemetry_df = telemetry_df[telemetry_df["Laps Completed"] > 0]
     telemetry_df.reset_index(drop=True, inplace=True)
 
-    # print(telemetry_df[telemetry_df["NewLap"] == True])
     # telemetry_df[["Timestamp", "Laps Completed", "NewLap", "LapTime", "Speed (Km/h)"]].to_csv("test.csv")
 
     return telemetry_df

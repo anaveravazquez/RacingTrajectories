@@ -8,6 +8,9 @@ import plotly.graph_objects as go
 import math
 import sys
 import os
+from shapely.geometry import LineString
+import time
+
 
 pd.set_option('display.max_rows', None)
 
@@ -47,6 +50,97 @@ def merge_lap_data(name):
     return laps_df
 
 
+def extract_key_points(cur_lap_df):
+
+    # informative_df is a dataframe containing the key points of the lap 
+    # that is, point of every 20 Km/h speed change, 
+    # Start breaking, stop breaking
+    # Start accelerating and stop accelerating
+    start_time = time.time()
+
+    latitude_list = []
+    longitude_list = []
+    time_stamp_list = []
+    speed_list = []
+    acceleration_list = []
+    description_list = []
+
+    all_speeds = cur_lap_df["Speed (Km/h)"]
+
+    for idx,row in enumerate(cur_lap_df.iterrows()):
+        cur_speed = row[1]["Speed (Km/h)"]
+        cur_latitude = row[1]["Latitude"]
+        cur_longitude = row[1]["Longitude"]
+        cur_time_stamp = row[1]["Timestamp"]
+        recorded_row = False
+        if idx == 0:
+            latitude_list.append(cur_latitude)
+            longitude_list.append(cur_longitude)
+            time_stamp_list.append(cur_time_stamp)
+            speed_list.append(cur_speed)
+            description_list.append("Starting Point")
+            recorded_row = True
+        elif cur_speed > prev_speed + 20:
+            latitude_list.append(cur_latitude)
+            longitude_list.append(cur_longitude)
+            time_stamp_list.append(cur_time_stamp)
+            speed_list.append(cur_speed)
+            description_list.append(f"Increasing Speed {cur_speed} Km/h")
+            recorded_row = True
+        elif cur_speed < prev_speed - 20:
+            latitude_list.append(cur_latitude)
+            longitude_list.append(cur_longitude)
+            time_stamp_list.append(cur_time_stamp)
+            speed_list.append(cur_speed)
+            description_list.append(f"Decreasing Speed {cur_speed} Km/h")
+            recorded_row = True
+        elif (cur_speed == all_speeds[idx-400:idx+400].max()) and (cur_speed > all_speeds[idx-400:idx-2].max()) and (cur_speed > all_speeds[idx+2:idx+400].max()) :
+            latitude_list.append(cur_latitude)
+            longitude_list.append(cur_longitude)
+            time_stamp_list.append(cur_time_stamp)
+            speed_list.append(cur_speed)
+            description_list.append(f"Max Speed at {cur_speed} Km/h")
+            recorded_row = True
+        elif (cur_speed == all_speeds[idx-400:idx+400].min()) and (cur_speed < all_speeds[idx-400:idx-2].min()) and (cur_speed < all_speeds[idx+2:idx+400].min()) :
+            latitude_list.append(cur_latitude)
+            longitude_list.append(cur_longitude)
+            time_stamp_list.append(cur_time_stamp)
+            speed_list.append(cur_speed)
+            description_list.append(f"Min Speed at {cur_speed} Km/h")
+            recorded_row = True
+        else:
+            recorded_row = False
+        
+        if recorded_row:
+            # only set prev_speed, prev_latitude, prev_longitude, prev_time_stamp if a row has been added
+            prev_rec_speed = cur_speed
+            prev_rec_latitude = cur_latitude
+            prev_rec_longitude = cur_longitude
+            prev_rec_time_stamp = cur_time_stamp
+        prev_speed = cur_speed
+        prev_latitude = cur_latitude
+        prev_longitude = cur_longitude
+        prev_time_stamp = cur_time_stamp
+
+    
+    informative_df = pd.DataFrame({
+        "Timestamp": time_stamp_list,
+        "Latitude": latitude_list,
+        "Longitude": longitude_list,
+        "Speed (Km/h)": speed_list,
+        "Description": description_list,
+    })
+
+    end_time = time.time()
+    print(f"Time taken to extract key points: {end_time - start_time}")
+
+    informative_df.drop_duplicates(subset=["Latitude", "Longitude", "Description"], inplace=True)
+
+    end_script_time = time.time()
+
+    return informative_df 
+
+
 def re_prepare_laps_data(name : str):
 
     laps_df = merge_lap_data(name)
@@ -75,8 +169,8 @@ def re_prepare_laps_data(name : str):
     
     lap_placements = lap_times["Lap Placement"]
     lap_numbers = lap_times["Lap Number"]
-    for i in range(len(lap_times_formatted)):
-        print(f"Lap Placement: {lap_placements[i]:<4}    Lap Number: {lap_numbers[i]:<4}    Unformatted: {lap_times_unformatted[i]:<12} Formatted: {lap_times_formatted[i]:<12}")
+    # for i in range(len(lap_times_formatted)):
+    #     print(f"Lap Placement: {lap_placements[i]:<4}    Lap Number: {lap_numbers[i]:<4}    Unformatted: {lap_times_unformatted[i]:<12} Formatted: {lap_times_formatted[i]:<12}")
 
     lap_times["Lap Time"] = lap_times_formatted
 
@@ -106,24 +200,41 @@ def prepare_laps_data(name : str):
 
 def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
     if lap_number:
-        return laps_df[laps_df["Laps Completed"] == lap_number]
+        specific_lap_df = laps_df[laps_df["Laps Completed"] == lap_number]
     elif lap_placement:
-        return laps_df[laps_df["Lap Placement"] == lap_placement]
+        specific_lap_df = laps_df[laps_df["Lap Placement"] == lap_placement]
     else: 
         raise ValueError("Please provide either lap_number or lap_placement")
 
+    specific_lap_gdf, specific_line_gdf = create_geodataframe(specific_lap_df)
 
+    return specific_lap_df, specific_line_gdf
+
+
+def convert_points_to_linestring(gdf):
+    line = LineString(gdf.geometry.tolist())
+    line_gdf = gpd.GeoDataFrame(geometry=[line], crs=gdf.crs).loc[0]
+    return line_gdf
+
+
+def create_geodataframe(df):
+    gdf = gpd.GeoDataFrame(
+        df,
+        geometry=gpd.points_from_xy(df['Longitude'], df['Latitude']),
+        crs="EPSG:4326"  # Explicitly setting the CRS to EPSG:4326
+    )
+    line_gdf = convert_points_to_linestring(gdf)
+    return gdf, line_gdf
 
 
 if __name__ == "__main__":
 
     # laps_df = merge_lap_data(name="Emil")
     # laps_df,lap_times = prepare_laps_data(name ="Emil")
-    laps_df,lap_times = re_prepare_laps_data(name ="Emil")
+    laps_df,lap_times = re_prepare_laps_data(name ="Ana")
 
     # Count Lap Number
-    print("lap_times['Lap Number'].value_counts(): ", lap_times["Lap Number"].value_counts().sort_values()) # count unique values in a column called "Lap Number"
-
+    # print("lap_times['Lap Number'].value_counts(): ", lap_times["Lap Number"].value_counts().sort_values()) # count unique values in a column called "Lap Number"
 
     # count unique values in a column called "Lap Placement"
 
@@ -132,11 +243,12 @@ if __name__ == "__main__":
     # print("")
     # print("lap_times.head(): ", lap_times.head())
 
-    # print("")
-    # lap_test = get_specific_lap(laps_df, lap_number=5)
-    # print("lap_test.head(): ", lap_test.head())
-    # print("")
-    # lap_test = get_specific_lap(laps_df, lap_placement=1)
-    # print("lap_test.head(): ", lap_test.head())
-    # print("")
+    print("")
+    specific_lap_df, specific_line_gdf = get_specific_lap(laps_df, lap_number=5)
+    print("lap_test.head(): ", specific_lap_df.head())
+    print("")
+    # print("specific_line_gdf: ", specific_line_gdf)
+    key_points_df = extract_key_points(specific_lap_df)
+    print("key_points_df")
+
 
