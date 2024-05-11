@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 import math
 import sys
 import os
+import movingpandas as mpd
+from shapely.geometry import LineString, Point
 
 pd.set_option('display.max_rows', None)
 
@@ -112,6 +114,45 @@ def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
     else: 
         raise ValueError("Please provide either lap_number or lap_placement")
 
+
+
+def points_to_lines(df, groupby_column):
+    """
+    Convert points in a Pandas DataFrame to LineString geometries grouped by a specified column.
+
+    Parameters:
+    - df (DataFrame): Pandas DataFrame containing point coordinates.
+    - groupby_column (str): Name of the column to group points by.
+
+    Returns:
+    - GeoDataFrame: GeoDataFrame containing LineString geometries.
+    """
+    # Group points by specified column and aggregate into LineString geometries
+    lines = df.groupby(groupby_column)['geometry'].apply(lambda x: LineString(x.tolist()) if x.size > 1 else None)
+    
+    # Create GeoDataFrame from LineString geometries
+    lines_gdf = gpd.GeoDataFrame(geometry=lines.values, index=lines.index, crs=df.crs)
+    
+    return lines_gdf
+
+def lines_to_trajectories(lines_gdf):
+    """
+    Create MovingPandas trajectories from LineString geometries in a GeoDataFrame.
+
+    Parameters:
+    - lines_gdf (GeoDataFrame): GeoDataFrame containing LineString geometries.
+
+    Returns:
+    - TrajectoryCollection: Collection of MovingPandas trajectories.
+    """
+    trajectories = []
+    for idx, row in lines_gdf.iterrows():
+        trajectory = mpd.Trajectory(row['geometry'], idx)
+        trajectories.append(trajectory)
+    
+    traj_collection = mpd.TrajectoryCollection(trajectories)
+    
+    return traj_collection
 
 
     
