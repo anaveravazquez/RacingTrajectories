@@ -46,23 +46,20 @@ def render_corner(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom 
     base_fig, base_ax = create_base_figure(left_side_df, right_side_df, zoom = zoom, 
                 center_dict = center_dict, width = width, height = height, bearing = bearing)
 
-
-    return base_fig, base_ax
-
     # Generate and save frames
-    # for i in range(100):
-    #     fig = create_animation_frame(i, cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, 
-    #                                 zoom, center_dict, width, height, bearing, size, player_name, opponent_name)
-    #     filename = f'animation_figures/frame_{i:03}.png'
-    #     fig.savefig(filename)
-    #     plt.close(fig)
-    #     filenames.append(filename)
+    for i in range(10):
+        fig = create_animation_frame(i, cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, 
+                                    zoom, center_dict, width, height, bearing, size, player_name, opponent_name)
+        filename = f'animation_figures/frame_{i:03}.png'
+        fig.savefig(filename)
+        plt.close(fig)
+        filenames.append(filename)
 
     # Create a GIF
-    # with imageio.get_writer('corner_animation.gif', mode='I', duration=1/20) as writer:  # 20 frames per second
-    #     for filename in filenames:
-    #         image = imageio.imread(filename)
-    #         writer.append_data(image)
+    with imageio.get_writer('corner_animation.gif', mode='I', duration=1/20) as writer:  # 20 frames per second
+        for filename in filenames:
+            image = imageio.imread(filename)
+            writer.append_data(image)
 
 
 
@@ -76,6 +73,8 @@ if __name__ == "__main__":
     opp_cur_lap_df = get_specific_lap(opp_laps_df, lap_number=51)
 
     left_side_df, right_side_df = load_track_data()
+    left_side_df = transform_coordinates(left_side_df)
+    right_side_df = transform_coordinates(right_side_df)
 
     start_time = time.time()
     print("Creating Animation starts now")
@@ -84,4 +83,4 @@ if __name__ == "__main__":
 
     print("Creating Animation finished in ", round(time.time() - start_time, 2), " seconds")
 
-    base_fig.show()
+    plt.show()
