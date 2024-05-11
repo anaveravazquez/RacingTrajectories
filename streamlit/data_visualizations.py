@@ -91,21 +91,6 @@ def plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = 1
             zoom=zoom),
     )
 
-    # Doesnt work Right now 
-    # fig.update_layout(
-    #     coloraxis=dict(
-    #         colorbar_x=1,  # Positions the first color bar to the right of the plot
-    #         colorbar_xanchor='left'
-    #     ),
-    #     coloraxis2=dict(
-    #         colorbar_x=1.05,  # Positions the second color bar next to the first one
-    #         colorbar_xanchor='left'
-    #     )
-    # )
-
-    # This also doesn't work right now 
-    # add_slider_to_map(fig)
-
     return fig
 
 

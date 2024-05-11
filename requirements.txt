@@ -266,3 +266,5 @@ zipp==3.17.0
 streamlit==1.32.2
 movingpandas==0.17.2
 imageio==2.34.1
+selenium==4.20.0
+kaleido==0.1.0post1

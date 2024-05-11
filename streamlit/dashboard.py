@@ -165,7 +165,7 @@ def page3():
     opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
 
     # Latitude is The Y-axis (More is North (up), Less is South (down))
-    # Longitude is The X-axis (More is East (left), Less is West (right))
+    # Longitude is The X-axis (More is East (right), Less is West (left))
     center_dict = {"Lat":50.3325 , "Lon":6.9402}
     zoom = 16.6
 

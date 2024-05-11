@@ -137,11 +137,13 @@ def load_track_data(distance_pr_dot:float = 0.1):
 
 def reduce_dataframe(df, distance_pr_dot):
         rows = []
+        previous_row = df.iloc[0]
         for index, row in df.iterrows():
             if index == 0:
                 rows.append(row)
                 continue
-            previous_row = rows[-1]
+            if len(rows) > 0:
+                previous_row = rows[-1]
             # We do not use Haversine distance as the coordinates are within centimeters of each other.
             if np.sqrt((row['X-Coords'] - previous_row['X-Coords'])**2 + 
                        (row['Z-Coords'] - previous_row['Z-Coords'])**2 + 
