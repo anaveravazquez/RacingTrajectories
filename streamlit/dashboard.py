@@ -56,7 +56,7 @@ def update_global_opponent(name):
         st.session_state[f'laps_df_{name}'] = laps_df
         st.session_state[f'lap_times_{name}'] = lap_times
 
-
+ 
 def selected_lap_number(name):
     lap_times = st.session_state['lap_times']
 
