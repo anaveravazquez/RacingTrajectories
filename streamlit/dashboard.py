@@ -9,6 +9,9 @@ sys.path.append("../")
 from data_loader import transform_coordinates, load_track_data, load_race_data
 from prepare_laps import prepare_laps_data, re_prepare_laps_data, get_specific_lap
 from data_visualizations import plot_track
+from data_animation import render_corner, create_data_subset_1
+import threading
+import time
 
 def update_start_time():
     st.session_state.start_time = datetime.now()
@@ -69,7 +72,7 @@ def selected_lap_number(name):
 
     if 'lap_number' not in st.session_state or st.session_state['lap_number'] != lap_number:
         st.session_state['lap_number'] = lap_number
-        update_track_data(name)
+        update_track_data()
 
 
 def selected_lap_number_opponent(name):
@@ -84,10 +87,10 @@ def selected_lap_number_opponent(name):
 
     if 'lap_number_opponent' not in st.session_state or st.session_state['lap_number_opponent'] != lap_number:
         st.session_state['lap_number_opponent'] = lap_number
-        update_track_data(name, opponent = True)
+        update_track_data(opponent = True)
 
 
-def update_track_data(name, opponent = False):
+def update_track_data(opponent = False):
     if opponent:
         lap_number = st.session_state['lap_number_opponent']
         laps_df = st.session_state['laps_df_opponent']
@@ -151,7 +154,9 @@ def page2():
 
     zoom = 14.9
     center_dict = {"Lat":50.332, "Lon":6.941}
+    bearing = 0
     plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, 
+                            bearing = bearing,
                             center_dict = center_dict , player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
     st.plotly_chart(plotly_fig, use_container_width=True)
 
@@ -159,39 +164,17 @@ def page2():
 def page3():
 
     st.title("Corner 1")
-    left_side_df = st.session_state['left_side_df']
-    right_side_df = st.session_state['right_side_df']
-    cur_lap_df = st.session_state['cur_lap_df']
-    opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
 
-    # Latitude is The Y-axis (More is North (up), Less is South (down))
-    # Longitude is The X-axis (More is East (right), Less is West (left))
-    center_dict = {"Lat":50.3325 , "Lon":6.9402}
-    zoom = 16.6
-
-    plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, 
-                            center_dict = center_dict , player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
-    st.plotly_chart(plotly_fig, use_container_width=True)
+    gif_path = "Gifs/corner_1_high_fps.gif"
+    st.image(gif_path, use_column_width=True)
 
 
 def page4():
 
     st.title("Corner 2")
 
-    left_side_df = st.session_state['left_side_df']
-    right_side_df = st.session_state['right_side_df']
-    lap_number = st.session_state['lap_number']
-    cur_lap_df = st.session_state['cur_lap_df']
-    opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
-
-    # Latitude is The Y-axis (More is North (up), Less is South (down))
-    # Longitude is The X-axis (More is East (left), Less is West (right))
-    center_dict = {"Lat":50.3262 , "Lon":6.9368}
-    zoom = 16.6
-
-    plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, bearing = -50, 
-                            center_dict = center_dict, player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
-    st.plotly_chart(plotly_fig, use_container_width=True)
+    gif_path = "Gifs/loading.gif"
+    st.image(gif_path, use_column_width=True)
 
 
 def page5():
@@ -248,8 +231,6 @@ opponents = ['Ana','Emil','Bot']
 st.sidebar.title('Select Player')
 name = st.sidebar.selectbox('Choose a player', players, key='name')
 update_global(name = name)
-
-# Sidebar for specific Lap Player
 selected_lap_number(name)
 
 
@@ -257,9 +238,8 @@ selected_lap_number(name)
 st.sidebar.title('Select Opponent')
 name_opponent = st.sidebar.selectbox('Choose an opponent', opponents , key='name_opponent')
 update_global_opponent(name = name_opponent)
-
-# # Sidebar for specific Lap Opponent
 selected_lap_number_opponent(name_opponent)
+
 
 
 
@@ -288,7 +268,8 @@ if 'start_time' in st.session_state:
 
 st.sidebar.button("Recompute Data for {}".format(name), on_click=re_prepare_laps_data, args=([name]), help=f"Recomputes and cleans the dataset for {name}")
 
-
+# Checking for changes to create GIFs
+check_changes_for_gifs()
 
 # Display the selected page
 page = pages[selection]
