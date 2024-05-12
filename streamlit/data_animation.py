@@ -33,7 +33,7 @@ def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opp
                         left_side_df, right_side_df, zoom, center_dict, width, height, bearing, x_time_lim):
 
     # # ONLY FOR TESTING
-    # if i < 32:
+    # if i < 20:
     #     return False
 
     # if i/2 > filtered_cur_df['Local_Timestamp'].max() and i/2 > filtered_opp_df['Local_Timestamp'].max():
@@ -44,10 +44,11 @@ def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opp
         print(f"Frame {i} skipped because it is out of bounds")
         return False
 
-    local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/15]
-    local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/15]
     # local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/2]
     # local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/2]
+
+    local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/15]
+    local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/15]
 
     local_image = plot_track(local_filtered_cur_df, local_filtered_opp_df, 
                             left_side_df, right_side_df, 
@@ -191,6 +192,7 @@ if __name__ == "__main__":
                 min_lat = 50.3309 # south most point
                 max_lon = 6.94441 # east most point
                 min_lon = 6.93755   # west most point
+                zoom = 17
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
@@ -200,7 +202,7 @@ if __name__ == "__main__":
                 
 
                 filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=filterend_left_side_df, right_side_df=filterend_right_side_df,
-                                                zoom=17, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
+                                                zoom=zoom, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
 
@@ -231,13 +233,30 @@ if __name__ == "__main__":
 
 
                 ### Corner 3 Gif Creation
+                corner = 3
+                min_timestamp = 50
+                max_timestamp = 200
+                # Latitude is The Y-axis (More is North (up), Less is South (down))
+                # Longitude is The X-axis (More is East (right), Less is West (left))
+                max_lat = 50.34 # north most point
+                min_lat = 50.335 # south most point
+                max_lon = 6.96 # east most point
+                min_lon = 6.9437   # west most point, 
+                center_dict = {"Lat":50.33661654164608 , "Lon":6.947228193315168}
+                zoom = 17.1
+                bearing = -45
+
+                filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
+                filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
+
+                start_time = time.time()
+
+                filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
+                                                zoom=zoom, center_dict=center_dict, width=1400, height=800, bearing=bearing, size=4,
+                                                frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
 
-
-                ### Corner 4 Gif Creation
 
                 print("Creating Animation finished in ", round(time.time() - start_time, 2), " seconds")
                 
 
-                break
-        break

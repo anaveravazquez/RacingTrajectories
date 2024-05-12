@@ -287,12 +287,13 @@ def plot_speed(df_player, df_opponent, player_name, opponent_name, x_lim, figsiz
     ax.grid(True, which='both', color='grey', linestyle='-', linewidth=0.5)
 
     ax.set_ylabel('Speed (Km/h)')
+    ax.set_xlabel('Time (s)')
     
     # set xticks every 5 seconds on the top axis
     ax2 = ax.twiny()
     ax2.set_xlim(ax.get_xlim())
-    ax2.set_xticks(range(0, int(x_lim)+1, 5))
-    ax2.set_xticklabels(range(0, int(x_lim)+1, 5))
+    ax2.set_xticks(range(0, int(x_lim)+1, 1))
+    ax2.set_xticklabels(range(0, int(x_lim)+1, 1))
     ax.set_xticks([])
 
     # Remove some of the padding

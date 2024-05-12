@@ -140,8 +140,6 @@ def page1():
         st.dataframe(opp_lap_times[["Lap Time", "Lap Number", "Lap Placement"]], use_container_width=True,  height=height)
     
     
-
-
 def page2():
     
     st.title("Overview of Lap")
@@ -151,9 +149,11 @@ def page2():
     cur_lap_df = st.session_state['cur_lap_df']
     opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
 
-    zoom = 14.9
+    zoom = 15 #14.9
+    # Latitude is The Y-axis (More is North (up), Less is South (down))
+    # Longitude is The X-axis (More is East (left), Less is West (right))
     center_dict = {"Lat":50.332, "Lon":6.941}
-    bearing = -50 #0
+    bearing = 0#-50 #0
 
     plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, bearing = bearing,
                             center_dict = center_dict , player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
@@ -187,8 +187,7 @@ def page5():
     cur_lap_df = st.session_state['cur_lap_df']
     opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
 
-    # Latitude is The Y-axis (More is North (up), Less is South (down))
-    # Longitude is The X-axis (More is East (left), Less is West (right))
+    
 
     # FIX ME
     # center_dict = {"Lat":50.3264 , "Lon":6.9373}
@@ -222,7 +221,6 @@ st.set_page_config(layout="wide")
 update_start_time()
 downloade_track_data()
 
-
 players   = ['Emil','Ana','Bot']
 opponents = ['Ana','Emil','Bot']
 
@@ -232,14 +230,11 @@ name = st.sidebar.selectbox('Choose a player', players, key='name')
 update_global(name = name)
 selected_lap_number(name)
 
-
 # # Sidebar for Opponent
 st.sidebar.title('Select Opponent')
 name_opponent = st.sidebar.selectbox('Choose an opponent', opponents , key='name_opponent')
 update_global_opponent(name = name_opponent)
 selected_lap_number_opponent(name_opponent)
-
-
 
 
 # Dictionary of pages
