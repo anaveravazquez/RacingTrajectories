@@ -40,15 +40,15 @@ def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opp
     #     print(f"Frame {i} skipped because it is out of bounds")
     #     return False
 
-    if i/15 > filtered_cur_df['Local_Timestamp'].max() and i/15 > filtered_opp_df['Local_Timestamp'].max():
+    if i/20 > filtered_cur_df['Local_Timestamp'].max() and i/20 > filtered_opp_df['Local_Timestamp'].max():
         print(f"Frame {i} skipped because it is out of bounds")
         return False
 
     # local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/2]
     # local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/2]
 
-    local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/15]
-    local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/15]
+    local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/20]
+    local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/20]
 
     local_image = plot_track(local_filtered_cur_df, local_filtered_opp_df, 
                             left_side_df, right_side_df, 
@@ -167,12 +167,14 @@ if __name__ == "__main__":
     players = ["Ana", "Emil", "Bot"]
     best_lap = [36, 51, 7]
 
+    start_time = time.time()
+    print("Creating Animation starts now")
+
     for player_1 in players:
         for player_2 in players:
             if player_1 != player_2:
                 print(f"Creating animation for {player_1} vs {player_2}")
-                start_time = time.time()
-                print("Creating Animation starts now")
+                
 
                 laps_df, lap_times = prepare_laps_data(name=player_1)
                 cur_lap_df = get_specific_lap(laps_df, lap_number=best_lap[players.index(player_1)]) 
@@ -196,12 +198,10 @@ if __name__ == "__main__":
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
-                filterend_left_side_df    = create_data_subset(left_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon, track_df=True)
-                filterend_right_side_df   = create_data_subset(right_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon , track_df=True)
 
                 
 
-                filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=filterend_left_side_df, right_side_df=filterend_right_side_df,
+                filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
                                                 zoom=zoom, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
@@ -222,12 +222,10 @@ if __name__ == "__main__":
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
-                filterend_left_side_df    = create_data_subset(left_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon, track_df=True)
-                filterend_right_side_df   = create_data_subset(right_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon , track_df=True)
 
                 start_time = time.time()
 
-                filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=filterend_left_side_df, right_side_df=filterend_right_side_df,
+                filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
                                                 zoom=zoom, center_dict=center_dict, width=1400, height=800, bearing=bearing, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
@@ -257,6 +255,6 @@ if __name__ == "__main__":
 
 
 
-                print("Creating Animation finished in ", round(time.time() - start_time, 2), " seconds")
+    print("Creating all Animation finished in  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
                 
 
