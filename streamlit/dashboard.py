@@ -149,11 +149,11 @@ def page2():
     cur_lap_df = st.session_state['cur_lap_df']
     opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
 
-    zoom = 15 #14.9
+    zoom = 15.15
     # Latitude is The Y-axis (More is North (up), Less is South (down))
     # Longitude is The X-axis (More is East (left), Less is West (right))
-    center_dict = {"Lat":50.332, "Lon":6.941}
-    bearing = 0#-50 #0
+    center_dict = {"Lat":50.3315, "Lon":6.941}
+    bearing = -35
 
     plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, bearing = bearing,
                             center_dict = center_dict , player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
@@ -162,58 +162,43 @@ def page2():
 
 def page3():
 
-    st.title("Corner 1")
+    st.title("Corner 1 Best Laps")
+    player_name = st.session_state['name']
+    opp_name = st.session_state['name_opponent']
 
-    gif_path = "Gifs/corner_animation_1_high_fps.gif.gif"
+    gif_path = f"Gifs/corner_animation_1_{player_name}_{opp_name}.gif"
     st.image(gif_path, use_column_width=True)
 
 
 def page4():
 
-    st.title("Corner 2")
+    st.title("Corner 2 Best Laps")
 
-    gif_path = "Gifs/loading.gif"
+    player_name = st.session_state['name']
+    opp_name = st.session_state['name_opponent']
+
+    gif_path = f"Gifs/corner_animation_2_{player_name}_{opp_name}.gif"
     st.image(gif_path, use_column_width=True)
 
 
 def page5():
 
-    st.title("Corner 3")
-    st.write("Needs to be implemented...")
+    st.title("Corner 3 Best Laps")
 
-    left_side_df = st.session_state['left_side_df']
-    right_side_df = st.session_state['right_side_df']
-    lap_number = st.session_state['lap_number']
-    cur_lap_df = st.session_state['cur_lap_df']
-    opp_cur_lap_df = st.session_state['cur_lap_df_opponent']
+    player_name = st.session_state['name']
+    opp_name = st.session_state['name_opponent']
 
-    
+    gif_path = f"Gifs/corner_animation_3_{player_name}_{opp_name}.gif"
+    st.image(gif_path, use_column_width=True)
 
-    # FIX ME
-    # center_dict = {"Lat":50.3264 , "Lon":6.9373}
-    # zoom = 15.8
-
-    # plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, center_dict = center_dict)
-    # st.plotly_chart(plotly_fig, use_container_width=True)
 
 def page6():
 
-    st.title("Page 6: Visualization Title")
+    st.title("Detailed Analysis of Player Lap")
     # Your code for visualization goes here
+    gif_path = f"Gifs/loading.gif"
+    st.image(gif_path, use_column_width=True)
 
-# def page7():
-#     global name
-#     st.title("Page 7: Visualization Title")
-#     # Your code for visualization goes here
-
-# def page8():
-#     global name
-#     st.title("Page 8: Visualization Title")
-#     # Your code for visualization goes here
-
-
-
-#### RUNS FROM HERE. DO NOT MAKE (IF__NAME__ == "__MAIN__") AS IT DOESN'T WORK WITH STREAMLIT  ####)
 
 
 # Pre-requisites
@@ -244,7 +229,7 @@ pages = {
     "Section 1"  : page3,
     "Section 2" : page4,
     "Section 3": page5,
-    "Page 6": page6
+    "Detailed Analysis": page6
 }
 
 # Sidebar for navigation
