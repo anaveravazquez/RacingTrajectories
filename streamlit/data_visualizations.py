@@ -68,6 +68,54 @@ def plot_track(cur_lap_df, opp_lap_df,
 
     fig = go.Figure()
 
+    # Add segments of the trajectory for opponent
+    current_speed_label = None
+    segment_lat = []
+    segment_lon = []
+    segment_texts = []
+
+    for idx, row in opp_lap_df.iterrows():
+        speed = row['Speed (Km/h)']
+        color = assign_color(speed, opponent=True)
+        timestamp = row['Timestamp']
+        if color != current_speed_label:
+            if segment_lat:
+                segment_lat.append(row['Latitude'])
+                segment_lon.append(row['Longitude'])
+                segment_texts.append(f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}")
+                fig.add_trace(
+                    go.Scattermapbox(
+                        lat=segment_lat,
+                        lon=segment_lon,
+                        mode='lines',
+                        line=dict(color=current_speed_label, width=2.5),
+                        text = segment_texts,
+                        name= opponent_name,
+                        showlegend=False
+                    )
+                )
+            segment_lat = [row['Latitude']]
+            segment_lon = [row['Longitude']]
+            segment_texts = [f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}"]
+            current_speed_label = color
+        else:
+            segment_lat.append(row['Latitude'])
+            segment_lon.append(row['Longitude'])
+            segment_texts.append(f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}")
+
+    # Add the last segment
+    fig.add_trace(
+        go.Scattermapbox(
+            lat=segment_lat,
+            lon=segment_lon,
+            mode='lines',
+            line=dict(color=current_speed_label, width=2.5),
+            text = segment_texts,
+            name= opponent_name,
+            showlegend=False
+        )
+    )
+
     # Add segments of the trajectory for player
     current_speed_label = None
     segment_lat = []
@@ -118,68 +166,31 @@ def plot_track(cur_lap_df, opp_lap_df,
         )
     )
 
+    # Adding Orange Markers for Max speed points
     fig.add_trace(
         go.Scattermapbox(
-            lat=opp_lap_df['Latitude'],
-            lon=opp_lap_df['Longitude'],
-            mode='lines',
-            marker=dict(size=size , color="Orange"),
-            text = segment_texts,
+            lat=opp_max_speed_points['Latitude'],
+            lon=opp_max_speed_points['Longitude'],
+            mode='markers',
+            marker=dict(size=int(size*2.5) ,color="Orange", symbol='circle'), # Doesn't work with 'x', 'square', 'diamond', 'cross', 'triangle', 'triangle-up', 'triangle-down', 'octagon', 'star', 'hexagon', 'diamond-tall', 'hourglass', 'bowtie', 'circle-open', 'circle-dot', 'circle-open-dot'
+            text = opp_max_speed_points.apply(lambda x: f"Timestamp: {x['Timestamp']} seconds<br>Speed (Km/h): {x['Speed (Km/h)']}<br>EVENT: {x['Description']}", axis=1),
             name= opponent_name,
             showlegend=False
         )
     )
-
-    # Add segments of the trajectory for opponent
-    current_speed_label = None
-    segment_lat = []
-    segment_lon = []
-    segment_texts = []
-
-    for idx, row in opp_lap_df.iterrows():
-        speed = row['Speed (Km/h)']
-        color = assign_color(speed, opponent=True)
-        timestamp = row['Timestamp']
-        if color != current_speed_label:
-            if segment_lat:
-                segment_lat.append(row['Latitude'])
-                segment_lon.append(row['Longitude'])
-                segment_texts.append(f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}")
-                fig.add_trace(
-                    go.Scattermapbox(
-                        lat=segment_lat,
-                        lon=segment_lon,
-                        mode='lines',
-                        line=dict(color=current_speed_label, width=2.5),
-                        text = segment_texts,
-                        name= opponent_name,
-                        showlegend=False
-                    )
-                )
-            segment_lat = [row['Latitude']]
-            segment_lon = [row['Longitude']]
-            segment_texts = [f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}"]
-            current_speed_label = color
-        else:
-            segment_lat.append(row['Latitude'])
-            segment_lon.append(row['Longitude'])
-            segment_texts.append(f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}")
-
-
-
-    # Add the last segment
+    
+    # Adding Orange Markers for Min speed points
     fig.add_trace(
         go.Scattermapbox(
-            lat=segment_lat,
-            lon=segment_lon,
-            mode='lines',
-            line=dict(color=current_speed_label, width=2.5),
-            text = segment_texts,
+            lat=opp_min_speed_points['Latitude'],
+            lon=opp_min_speed_points['Longitude'],
+            mode='markers',
+            marker=dict(size=int(size*2.5) ,color="Orange", symbol='circle'),
+            text = opp_min_speed_points.apply(lambda x: f"Timestamp: {x['Timestamp']} seconds<br>Speed (Km/h): {x['Speed (Km/h)']}<br>EVENT: {x['Description']}", axis=1),
             name= opponent_name,
             showlegend=False
         )
     )
-
 
     # Adding Green Markers for Max speed points
     fig.add_trace(
@@ -203,32 +214,6 @@ def plot_track(cur_lap_df, opp_lap_df,
             marker=dict(size=int(size*2.5) ,color="Green" , symbol='circle'),
             text = cur_min_speed_points.apply(lambda x: f"Timestamp: {x['Timestamp']} seconds<br>Speed (Km/h): {x['Speed (Km/h)']}<br>EVENT: {x['Description']}", axis=1),
             name= player_name,
-            showlegend=False
-        )
-    )
-    
-    # Adding Orange Markers for Max speed points
-    fig.add_trace(
-        go.Scattermapbox(
-            lat=opp_max_speed_points['Latitude'],
-            lon=opp_max_speed_points['Longitude'],
-            mode='markers',
-            marker=dict(size=int(size*2.5) ,color="Orange", symbol='circle'), # Doesn't work with 'x', 'square', 'diamond', 'cross', 'triangle', 'triangle-up', 'triangle-down', 'octagon', 'star', 'hexagon', 'diamond-tall', 'hourglass', 'bowtie', 'circle-open', 'circle-dot', 'circle-open-dot'
-            text = opp_max_speed_points.apply(lambda x: f"Timestamp: {x['Timestamp']} seconds<br>Speed (Km/h): {x['Speed (Km/h)']}<br>EVENT: {x['Description']}", axis=1),
-            name= opponent_name,
-            showlegend=False
-        )
-    )
-    
-    # Adding Orange Markers for Min speed points
-    fig.add_trace(
-        go.Scattermapbox(
-            lat=opp_min_speed_points['Latitude'],
-            lon=opp_min_speed_points['Longitude'],
-            mode='markers',
-            marker=dict(size=int(size*2.5) ,color="Orange", symbol='circle'),
-            text = opp_min_speed_points.apply(lambda x: f"Timestamp: {x['Timestamp']} seconds<br>Speed (Km/h): {x['Speed (Km/h)']}<br>EVENT: {x['Description']}", axis=1),
-            name= opponent_name,
             showlegend=False
         )
     )
