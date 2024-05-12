@@ -139,6 +139,7 @@ def plot_track(cur_lap_df, opp_lap_df,
     for idx, row in opp_lap_df.iterrows():
         speed = row['Speed (Km/h)']
         color = assign_color(speed, opponent=True)
+        timestamp = row['Timestamp']
         if color != current_speed_label:
             if segment_lat:
                 segment_lat.append(row['Latitude'])
