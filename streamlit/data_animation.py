@@ -175,7 +175,6 @@ if __name__ == "__main__":
             if player_1 != player_2:
                 print(f"Creating animation for {player_1} vs {player_2}")
                 
-
                 laps_df, lap_times = prepare_laps_data(name=player_1)
                 cur_lap_df = get_specific_lap(laps_df, lap_number=best_lap[players.index(player_1)]) 
 
@@ -205,6 +204,9 @@ if __name__ == "__main__":
                                                 zoom=zoom, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
+                print("\n")
+                print("Current runtime:  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
+                print("\n")
 
                 ### Corner 2 Gif Creation
                 corner = 2
@@ -229,6 +231,9 @@ if __name__ == "__main__":
                                                 zoom=zoom, center_dict=center_dict, width=1400, height=800, bearing=bearing, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
+                print("\n")
+                print("Current runtime:  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
+                print("\n")
 
                 ### Corner 3 Gif Creation
                 corner = 3
@@ -252,9 +257,10 @@ if __name__ == "__main__":
                 filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
                                                 zoom=zoom, center_dict=center_dict, width=1400, height=800, bearing=bearing, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
-
-
-
+                print("\n")
+                print("Current runtime:  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
+                print("\n")
+                
     print("Creating all Animation finished in  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
                 
 
