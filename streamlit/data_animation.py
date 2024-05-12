@@ -41,8 +41,8 @@ def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opp
         print(f"Frame {i} skipped because it is out of bounds")
         return False
 
-    local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/20]
-    local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/20]
+    local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/15]
+    local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/15]
 
     local_image = plot_track(local_filtered_cur_df, local_filtered_opp_df, 
                             left_side_df, right_side_df, 
@@ -142,7 +142,7 @@ def render_corner(filtered_cur_df, filtered_opp_df, left_side_df, right_side_df,
 
     # Create a GIF
     gif_path = f'Gifs/corner_animation_{corner}_{player_name}_{opponent_name}.gif'
-    with imageio.get_writer(gif_path, mode='I', duration=1/40) as writer:  # 20 frames per second
+    with imageio.get_writer(gif_path, mode='I', duration=1/30) as writer:  # 20 frames per second
         for filename in images:
             image = imageio.imread(filename)
             writer.append_data(image)
@@ -158,49 +158,54 @@ if __name__ == "__main__":
     # Is not phesible in its current state, with the current packages.
     # Check out the Animation in "GitHub\RacingTrajectories\streamlit\Gifs\corner_animation_1.gif"
 
+    players = ["Ana", "Emil", "Bot"]
+    best_lap = [36, 51, 7]
 
-    laps_df, lap_times = prepare_laps_data(name="Ana")
-    cur_lap_df = get_specific_lap(laps_df, lap_number=36) 
+    for player_1 in players:
+        for player_2 in players:
+            if player_1 != player_2:
+                print(f"Creating animation for {player_1} vs {player_2}")
 
-    opp_laps_df, opp_lap_times = prepare_laps_data(name="Emil")
-    opp_cur_lap_df = get_specific_lap(opp_laps_df, lap_number=51)
+                laps_df, lap_times = prepare_laps_data(name=player_1)
+                cur_lap_df = get_specific_lap(laps_df, lap_number=best_lap[players.index(player_1)]) 
 
-    left_side_df, right_side_df = load_track_data()
-    left_side_df = transform_coordinates(left_side_df)
-    right_side_df = transform_coordinates(right_side_df)
+                opp_laps_df, opp_lap_times = prepare_laps_data(name=player_2)
+                opp_cur_lap_df = get_specific_lap(opp_laps_df, lap_number=best_lap[players.index(player_2)])
 
-    ### Corner 1 Gif Creation
+                left_side_df, right_side_df = load_track_data()
+                left_side_df = transform_coordinates(left_side_df)
+                right_side_df = transform_coordinates(right_side_df)
 
-    min_timestamp = 0
-    max_timestamp = 40
-    max_lat = 50.3345 # north most point
-    min_lat = 50.3309 # south most point
-    max_lon = 6.94441 # east most point
-    min_lon = 6.93755   # west most point
+                ### Corner 1 Gif Creation
+                corner = 1
+                min_timestamp = 0
+                max_timestamp = 40
+                max_lat = 50.3345 # north most point
+                min_lat = 50.3309 # south most point
+                max_lon = 6.94441 # east most point
+                min_lon = 6.93755   # west most point
 
-    filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
-    filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
-    left_side_df    = create_data_subset(left_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon, track_df=True)
-    right_side_df   = create_data_subset(right_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon , track_df=True)
+                filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
+                filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
+                filterend_left_side_df    = create_data_subset(left_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon, track_df=True)
+                filterend_right_side_df   = create_data_subset(right_side_df, min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon , track_df=True)
 
-    corner = 1
+                start_time = time.time()
+                print("Creating Animation starts now")
 
-    start_time = time.time()
-    print("Creating Animation starts now")
+                filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=filterend_left_side_df, right_side_df=filterend_right_side_df,
+                                                zoom=17, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
+                                                frames= 800 , player_name="Ana", opponent_name="Emil", corner = corner)
 
-    filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
-                                    zoom=17, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
-                                    frames= 800 , player_name="Ana", opponent_name="Emil", corner = corner)
+                print("Creating Animation finished in ", round(time.time() - start_time, 2), " seconds")
 
-    print("Creating Animation finished in ", round(time.time() - start_time, 2), " seconds")
-
-
-   ### Corner 2 Gif Creation
-
-
-
-   ### Corner 3 Gif Creation
-
+            
+                ### Corner 2 Gif Creation
 
 
-   ### Corner 4 Gif Creation
+
+                ### Corner 3 Gif Creation
+
+
+
+                ### Corner 4 Gif Creation

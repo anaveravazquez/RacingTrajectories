@@ -9,7 +9,6 @@ sys.path.append("../")
 from data_loader import transform_coordinates, load_track_data, load_race_data
 from prepare_laps import prepare_laps_data, re_prepare_laps_data, get_specific_lap
 from data_visualizations import plot_track
-from data_animation import render_corner, create_data_subset_1
 import threading
 import time
 
