@@ -10,6 +10,7 @@ import sys
 import os
 import movingpandas as mpd
 from shapely.geometry import LineString, Point
+import time
 
 pd.set_option('display.max_rows', None)
 
@@ -79,28 +80,14 @@ def extract_key_points(cur_lap_df):
             speed_list.append(cur_speed)
             description_list.append("Starting Point")
             recorded_row = True
-        elif cur_speed > prev_speed + 20:
-            latitude_list.append(cur_latitude)
-            longitude_list.append(cur_longitude)
-            time_stamp_list.append(cur_time_stamp)
-            speed_list.append(cur_speed)
-            description_list.append(f"Increasing Speed {cur_speed} Km/h")
-            recorded_row = True
-        elif cur_speed < prev_speed - 20:
-            latitude_list.append(cur_latitude)
-            longitude_list.append(cur_longitude)
-            time_stamp_list.append(cur_time_stamp)
-            speed_list.append(cur_speed)
-            description_list.append(f"Decreasing Speed {cur_speed} Km/h")
-            recorded_row = True
-        elif (cur_speed == all_speeds[idx-400:idx+400].max()) and (cur_speed > all_speeds[idx-400:idx-2].max()) and (cur_speed > all_speeds[idx+2:idx+400].max()) :
+        elif (cur_speed == all_speeds[idx-150:idx+150].max()) and (cur_speed >= all_speeds[idx-150:idx-1].max()) and (cur_speed >= all_speeds[idx+1:idx+150].max()) :
             latitude_list.append(cur_latitude)
             longitude_list.append(cur_longitude)
             time_stamp_list.append(cur_time_stamp)
             speed_list.append(cur_speed)
             description_list.append(f"Max Speed at {cur_speed} Km/h")
             recorded_row = True
-        elif (cur_speed == all_speeds[idx-400:idx+400].min()) and (cur_speed < all_speeds[idx-400:idx-2].min()) and (cur_speed < all_speeds[idx+2:idx+400].min()) :
+        elif (cur_speed == all_speeds[idx-150:idx+150].min()) and (cur_speed <= all_speeds[idx-150:idx-1].min()) and (cur_speed <= all_speeds[idx+1:idx+150].min()) :
             latitude_list.append(cur_latitude)
             longitude_list.append(cur_longitude)
             time_stamp_list.append(cur_time_stamp)
@@ -205,9 +192,10 @@ def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
     else: 
         raise ValueError("Please provide either lap_number or lap_placement")
 
-    specific_lap_gdf, specific_line_gdf = create_geodataframe(specific_lap_df)
+    ### Depricated line of code as we didn't find any use for it, and it caused errors in combination with plotly
+    # specific_lap_gdf, specific_line_gdf = create_geodataframe(specific_lap_df)
 
-    return specific_lap_df, specific_line_gdf
+    return specific_lap_df
 
 
 def convert_points_to_linestring(gdf):
@@ -282,7 +270,7 @@ if __name__ == "__main__":
     # print("lap_times.head(): ", lap_times.head())
 
     print("")
-    specific_lap_df, specific_line_gdf = get_specific_lap(laps_df, lap_number=5)
+    specific_lap_df = get_specific_lap(laps_df, lap_number=5)
     print("lap_test.head(): ", specific_lap_df.head())
     print("")
     # print("specific_line_gdf: ", specific_line_gdf)

@@ -4,3 +4,6 @@ streamlit/mapbox_token
 *.tif
 streamlit/animation_figures
 streamlit/__pycache__
+streamlit/finished_animation_figures
+streamlit/animation_charts
+__pycache__

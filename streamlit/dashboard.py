@@ -94,13 +94,13 @@ def update_track_data(opponent = False):
     if opponent:
         lap_number = st.session_state['lap_number_opponent']
         laps_df = st.session_state['laps_df_opponent']
-        cur_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
-        st.session_state['cur_lap_df_opponent'] = cur_lap_df
+        specific_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
+        st.session_state['cur_lap_df_opponent'] = specific_lap_df
     else: 
         lap_number = st.session_state['lap_number']
         laps_df = st.session_state['laps_df']
-        cur_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
-        st.session_state['cur_lap_df'] = cur_lap_df
+        specific_lap_df = get_specific_lap(laps_df, lap_number=lap_number)
+        st.session_state['cur_lap_df'] = specific_lap_df
 
 
 def page1():
@@ -154,9 +154,9 @@ def page2():
 
     zoom = 14.9
     center_dict = {"Lat":50.332, "Lon":6.941}
-    bearing = 0
-    plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, 
-                            bearing = bearing,
+    bearing = -50 #0
+
+    plotly_fig = plot_track(cur_lap_df, opp_cur_lap_df, left_side_df, right_side_df, zoom = zoom, bearing = bearing,
                             center_dict = center_dict , player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
     st.plotly_chart(plotly_fig, use_container_width=True)
 
@@ -165,7 +165,7 @@ def page3():
 
     st.title("Corner 1")
 
-    gif_path = "Gifs/corner_1_high_fps.gif"
+    gif_path = "Gifs/corner_animation_1_high_fps.gif.gif"
     st.image(gif_path, use_column_width=True)
 
 
@@ -267,9 +267,6 @@ if 'start_time' in st.session_state:
     st.sidebar.write(f"Loading time: {elapsed_time.seconds}s {elapsed_time.microseconds // 1000}ms")
 
 st.sidebar.button("Recompute Data for {}".format(name), on_click=re_prepare_laps_data, args=([name]), help=f"Recomputes and cleans the dataset for {name}")
-
-# Checking for changes to create GIFs
-check_changes_for_gifs()
 
 # Display the selected page
 page = pages[selection]
