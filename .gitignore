@@ -2,3 +2,5 @@ Data/Map_details/track_map.tif
 /streamlit/laps_data
 streamlit/mapbox_token
 *.tif
+streamlit/animation_figures
+streamlit/__pycache__
