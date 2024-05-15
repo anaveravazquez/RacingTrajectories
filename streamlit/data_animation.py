@@ -1,26 +1,14 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.colors as colors
-import geopandas as gpd
 import imageio
 import sys
 import os
 import time
-import matplotlib.colors as mcolors
-import movingpandas as mpd
-from matplotlib.colors import Normalize
-from matplotlib.cm import ScalarMappable
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from shapely.geometry import LineString, Point
 import kaleido
-import plotly.graph_objects as go
-import io
 from PIL import Image
 import plotly.io as pio
 from multiprocessing import Pool, cpu_count
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.append("../")
 
@@ -32,20 +20,9 @@ from data_visualizations import plot_track, plot_speed
 def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opponent_name, i,
                         left_side_df, right_side_df, zoom, center_dict, width, height, bearing, x_time_lim):
 
-    # # ONLY FOR TESTING
-    # if i < 20:
-    #     return False
-
-    # if i/2 > filtered_cur_df['Local_Timestamp'].max() and i/2 > filtered_opp_df['Local_Timestamp'].max():
-    #     print(f"Frame {i} skipped because it is out of bounds")
-    #     return False
-
     if i/20 > filtered_cur_df['Local_Timestamp'].max() and i/20 > filtered_opp_df['Local_Timestamp'].max():
         print(f"Frame {i} skipped because it is out of bounds")
         return False
-
-    # local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/2]
-    # local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/2]
 
     local_filtered_cur_df = filtered_cur_df[filtered_cur_df['Local_Timestamp'] < i/20]
     local_filtered_opp_df = filtered_opp_df[filtered_opp_df['Local_Timestamp'] < i/20]

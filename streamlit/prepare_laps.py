@@ -30,21 +30,13 @@ def merge_lap_data(name):
             tmp_laps_df = load_race_data(file = file, remove_first_lap= True)
             tmp_laps_df = transform_coordinates(tmp_laps_df)
             if idx > 0:
-                # print("highest_laps_completed : ", highest_laps_completed)
-                # print("min tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].min())
-                # print("max tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].max())
-
                 tmp_laps_df["Laps Completed"] = tmp_laps_df["Laps Completed"] + highest_laps_completed
-                # print("min tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].min())
-                # print("max tmp_laps_df['Laps Completed'] : ", tmp_laps_df["Laps Completed"].max())
                 laps_df = pd.concat([laps_df, tmp_laps_df], ignore_index=True)
-                # list all the coutns of the values in a column called "Lap Completed"
             elif idx == 0:
                 laps_df = tmp_laps_df.copy()
             highest_laps_completed = laps_df["Laps Completed"].max()
             idx += 1
 
-    # Remove columns containing only NaN
     laps_df = laps_df.dropna(axis=1)
 
     return laps_df
@@ -52,17 +44,12 @@ def merge_lap_data(name):
 
 def extract_key_points(cur_lap_df):
 
-    # informative_df is a dataframe containing the key points of the lap 
-    # that is, point of every 20 Km/h speed change, 
-    # Start breaking, stop breaking
-    # Start accelerating and stop accelerating
     start_time = time.time()
 
     latitude_list = []
     longitude_list = []
     time_stamp_list = []
     speed_list = []
-    acceleration_list = []
     description_list = []
 
     all_speeds = cur_lap_df["Speed (Km/h)"]
@@ -119,9 +106,7 @@ def extract_key_points(cur_lap_df):
 
     end_time = time.time()
     print(f"Time taken to extract key points: {end_time - start_time}")
-
     informative_df.drop_duplicates(subset=["Latitude", "Longitude", "Description"], inplace=True)
-
     end_script_time = time.time()
 
     return informative_df 
@@ -130,10 +115,7 @@ def extract_key_points(cur_lap_df):
 def re_prepare_laps_data(name : str):
 
     laps_df = merge_lap_data(name)
-    
     lap_times = laps_df[laps_df["NewLap"] == True]
-
-    # Create a dataframe called lap_times the only contains rows of the first entry ecah each lap, where "NewLap" is not being used as a column
 
     lap_times.sort_values(by="LapTime", inplace=True)
     lap_times.reset_index(drop=True, inplace=True)
@@ -144,20 +126,15 @@ def re_prepare_laps_data(name : str):
     laps_df["Lap Placement"] = np.nan
     lap_time_indeces = laps_df[laps_df["NewLap"] == True].index
 
-    # Add Lap Placement to each run
     for i in range(len(lap_time_indeces) - 1):
         laps_df.loc[lap_time_indeces[i]:lap_time_indeces[i + 1], "Lap Placement"] = i + 1
     lap_times = lap_times[["Lap Placement", "Laps Completed", "LapTime"]]
     lap_times = lap_times.rename(columns={"LapTime": "Lap Time", "Laps Completed": "Lap Number"})
-    # change lap time to minutes and seconds format
     lap_times_formatted = lap_times["Lap Time"].apply(lambda x: str(math.floor(x / 60)) + ":" + str(round(x % 60, 3)))
     lap_times_unformatted = lap_times["Lap Time"]
     
     lap_placements = lap_times["Lap Placement"]
     lap_numbers = lap_times["Lap Number"]
-    # for i in range(len(lap_times_formatted)):
-    #     print(f"Lap Placement: {lap_placements[i]:<4}    Lap Number: {lap_numbers[i]:<4}    Unformatted: {lap_times_unformatted[i]:<12} Formatted: {lap_times_formatted[i]:<12}")
-
     lap_times["Lap Time"] = lap_times_formatted
 
     # Removing redundant columns
@@ -183,7 +160,6 @@ def prepare_laps_data(name : str):
     return laps_df, lap_times
 
 
-
 def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
     if lap_number:
         specific_lap_df = laps_df[laps_df["Laps Completed"] == lap_number]
@@ -199,19 +175,22 @@ def get_specific_lap(laps_df, lap_number=None, lap_placement=None):
 
 
 def convert_points_to_linestring(gdf):
+    ### Depricated function as we didn't find any use for it, and it caused errors in combination with plotly
     line = LineString(gdf.geometry.tolist())
     line_gdf = gpd.GeoDataFrame(geometry=[line], crs=gdf.crs).loc[0]
     return line_gdf
 
 
 def create_geodataframe(df):
+    ### Depricated function as we didn't find any use for it, and it caused errors in combination with plotly
     gdf = gpd.GeoDataFrame(
         df,
         geometry=gpd.points_from_xy(df['Longitude'], df['Latitude']),
-        crs="EPSG:4326"  # Explicitly setting the CRS to EPSG:4326
+        crs="EPSG:4326"  
     )
     line_gdf = convert_points_to_linestring(gdf)
     return gdf, line_gdf
+
 
 def points_to_lines(df, groupby_column):
     """
@@ -224,24 +203,13 @@ def points_to_lines(df, groupby_column):
     Returns:
     - GeoDataFrame: GeoDataFrame containing LineString geometries.
     """
-    # Group points by specified column and aggregate into LineString geometries
+    # Groups points by specified column and aggregates into LineString geometries
     lines = df.groupby(groupby_column)['geometry'].apply(lambda x: LineString(x.tolist()) if x.size > 1 else None)
-    
-    # Create GeoDataFrame from LineString geometries
     lines_gdf = gpd.GeoDataFrame(geometry=lines.values, index=lines.index, crs=df.crs)
     
     return lines_gdf
 
 def lines_to_trajectories(lines_gdf):
-    """
-    Create MovingPandas trajectories from LineString geometries in a GeoDataFrame.
-
-    Parameters:
-    - lines_gdf (GeoDataFrame): GeoDataFrame containing LineString geometries.
-
-    Returns:
-    - TrajectoryCollection: Collection of MovingPandas trajectories.
-    """
     trajectories = []
     for idx, row in lines_gdf.iterrows():
         trajectory = mpd.Trajectory(row['geometry'], idx)
@@ -258,16 +226,6 @@ if __name__ == "__main__":
     # laps_df = merge_lap_data(name="Emil")
     # laps_df,lap_times = prepare_laps_data(name ="Emil")
     laps_df,lap_times = re_prepare_laps_data(name ="Ana")
-
-    # Count Lap Number
-    # print("lap_times['Lap Number'].value_counts(): ", lap_times["Lap Number"].value_counts().sort_values()) # count unique values in a column called "Lap Number"
-
-    # count unique values in a column called "Lap Placement"
-
-    # laps_df, lap_times = prepare_laps_data(use_file="assetto_corsa_telemetry_F1_Emil_test2_30Laps.csv")
-    # print("laps_df.head(): ", laps_df.head())
-    # print("")
-    # print("lap_times.head(): ", lap_times.head())
 
     print("")
     specific_lap_df = get_specific_lap(laps_df, lap_number=5)

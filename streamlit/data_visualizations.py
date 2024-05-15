@@ -28,7 +28,6 @@ def plot_track(cur_lap_df, opp_lap_df,
         # mapbox_access_token = file.read()
         # px.set_mapbox_access_token(mapbox_access_token)
 
-    # Setting up the initial view for the map
     center_lat = center_dict["Lat"]
     center_lon = center_dict["Lon"]
 
@@ -48,8 +47,8 @@ def plot_track(cur_lap_df, opp_lap_df,
         cur_max_speed_points = cur_informative_points
         cur_min_speed_points = cur_informative_points
 
-    speed_bins = range(40, 180, 20)  # Speed ranges from 50 to 350, in steps of 50
-    speed_labels = range(50, 190, 20)  # Midpoints of each bin for labeling
+    speed_bins = range(40, 180, 20)  # Bins for the speed
+    speed_labels = range(50, 171, 20) # Midpoints of the bins
 
     norm = colors.Normalize(vmin=40, vmax=200)
     scalar_map = cm.ScalarMappable(norm=norm, cmap='Greens')
@@ -150,8 +149,6 @@ def plot_track(cur_lap_df, opp_lap_df,
             segment_lat.append(row['Latitude'])
             segment_lon.append(row['Longitude'])
             segment_texts.append(f"Timestamp: {timestamp} seconds<br>Speed (Km/h): {speed}")
-
-            
 
     # Add the last segment
     fig.add_trace(
@@ -274,17 +271,12 @@ def plot_speed(df_player, df_opponent, player_name, opponent_name, x_lim, figsiz
     ax.set_ylabel('Speed (Km/h)')
     ax.set_xlabel('Time (s)')
     
-    # set xticks every 5 seconds on the top axis
     ax2 = ax.twiny()
     ax2.set_xlim(ax.get_xlim())
     ax2.set_xticks(range(0, int(x_lim)+1, 1))
     ax2.set_xticklabels(range(0, int(x_lim)+1, 1))
     ax.set_xticks([])
-
-    # Remove some of the padding
     plt.tight_layout()
-
-    # Adding a legend
     ax.legend()
     
     if animate:

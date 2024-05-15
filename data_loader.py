@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 def fix_track_indices(df, left_right = "left"):
     """
     Removes bad indices from the right track dataframe in order to smooth the track.
+    These ranges were found by visual inspection of the track.
     """
     if left_right == "left":
         ranges_to_smooth = [(20400, 23500)]
@@ -19,60 +20,26 @@ def fix_track_indices(df, left_right = "left"):
     else: 
         raise ValueError("left_right must be either 'left' or 'right'")
 
-    # You might g_indices, 'Y-coords'], fill_value="extrapolate")
     idx = 0
     for start, end in ranges_to_smooth:
-
-        # Remove the bad indices
         for bad_range in ranges_to_remove[idx]:
             _start = bad_range[0]
             _end = bad_range[1]
             indices = np.arange(_start, _end)
-            # x_interp = interp1d([_start, _end], [df['X-Coords'][_start], df['X-Coords'][_end]], kind='linear', fill_value="extrapolate")
-            # y_interp = interp1d([_start, _end], [df['Y-Coords'][_start], df['Y-Coords'][_end]], kind='linear', fill_value="extrapolate")
-            # df.loc[_start:_end-1, 'X-Coords'] = x_interp(indices)
-            # df.loc[_start:_end-1, 'Y-Coords'] = y_interp(indices)
-            # create a straight line from _start to _end and replace the values in the dataframe
+           
             new_line = np.array([np.linspace(df['X-Coords'][_start], df['X-Coords'][_end], _end-_start), 
                                     np.linspace(df['Z-Coords'][_start], df['Z-Coords'][_end], _end-_start)]).T
-
-            # print("Start index ", _start)
-            # print("Start coords ", df['X-Coords'][_start], df['Z-Coords'][_start])
-            # print("End index ", _end)
-            # print("End coords ", df['X-Coords'][_end], df['Z-Coords'][_end])
-            # print("")
 
             df.loc[_start:_end-1, 'X-Coords'] = new_line[:,0]
             df.loc[_start:_end-1, 'Z-Coords'] = new_line[:,1]
 
         x = 100
         tmp_df = df.copy()
-            # tmp_df["X-Coords"] = tmp_df["X-Coords"].shift(-x//2)
-            # tmp_df["Y-Coords"] = tmp_df["Y-Coords"].shift(-x//2)
 
         df.loc[end:end, 'X-Coords'] = tmp_df.loc[start:end,   'X-Coords'].rolling(window=x, min_periods=1, center=True).mean()
         df.loc[end:end, 'Y-Coords'] = tmp_df.loc[start:end  , 'Y-Coords'].rolling(window=x, min_periods=1, center=True).mean() 
 
-        # df.loc[end:end, 'X-Coords'] = df.loc[start:end,   'X-Coords'].rolling(window=x, min_periods=1, center=True).mean()
-        # df.loc[end:end, 'Y-Coords'] = df.loc[start:end  , 'Y-Coords'].rolling(window=x, min_periods=1, center=True).mean() 
-
-        # end += 10
-        # for i in range(1, x//2):
-        #     df.loc[end-i:end-i, 'X-Coords'] = df.loc[end-i:end,   'X-Coords'].rolling(window=x, min_periods=1, center=True).mean()[end-i]
-        #     df.loc[end-i:end-i, 'Y-Coords'] = df.loc[end-i:end  , 'Y-Coords'].rolling(window=x, min_periods=1, center=True).mean()[end-i]
-
         idx += 1
-        # Generate new indices for interpolation from pre_start to post_end
-
-        # print("")
-        # print("left right", left_right)
-        # print("length of indices", len(indices))
-        # print("length of x_interp(indices)", len(x_interp(indices)))
-        # print("length of y_interp(indices)", len(y_interp(indices)))
-        # print("length of df.loc[start:end-1, 'X-Coords'] :", len(df.loc[start:end-1, 'X-Coords']))
-        # print("")
-
-        # Replace the coordinates in the DataFrame for the defined range
 
     return df
 
