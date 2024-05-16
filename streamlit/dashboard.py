@@ -159,15 +159,17 @@ def page2():
                             center_dict = center_dict , player_name = st.session_state['name'], opponent_name = st.session_state['name_opponent'])
     st.plotly_chart(plotly_fig, use_container_width=True)
 
-
 def page3():
 
     st.title("Corner 1 Best Laps")
     player_name = st.session_state['name']
     opp_name = st.session_state['name_opponent']
 
-    gif_path = f"Gifs/corner_animation_1_{player_name}_{opp_name}.gif"
-    st.image(gif_path, use_column_width=True)
+    if opp_name == player_name:
+        st.write("Please select a different opponent")
+    else:
+        gif_path = f"Gifs/corner_animation_1_{player_name}_{opp_name}.gif"
+        st.image(gif_path, use_column_width=True)
 
 
 def page4():
@@ -176,9 +178,11 @@ def page4():
 
     player_name = st.session_state['name']
     opp_name = st.session_state['name_opponent']
-
-    gif_path = f"Gifs/corner_animation_2_{player_name}_{opp_name}.gif"
-    st.image(gif_path, use_column_width=True)
+    if opp_name == player_name:
+        st.write("Please select a different opponent")
+    else:
+        gif_path = f"Gifs/corner_animation_2_{player_name}_{opp_name}.gif"
+        st.image(gif_path, use_column_width=True)
 
 
 def page5():
@@ -187,10 +191,11 @@ def page5():
 
     player_name = st.session_state['name']
     opp_name = st.session_state['name_opponent']
-
-    gif_path = f"Gifs/corner_animation_3_{player_name}_{opp_name}.gif"
-    st.image(gif_path, use_column_width=True)
-
+    if opp_name == player_name:
+        st.write("Please select a different opponent")
+    else:
+        gif_path = f"Gifs/corner_animation_3_{player_name}_{opp_name}.gif"
+        st.image(gif_path, use_column_width=True)
 
 def page6():
 
