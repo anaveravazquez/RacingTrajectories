@@ -16,7 +16,7 @@ def update_start_time():
     st.session_state.start_time = datetime.now()
 
 
-def downloade_track_data():
+def download_track_data():
     if 'left_side_df' not in st.session_state or 'right_side_df' not in st.session_state:
         left_side_df, right_side_df = load_track_data()
         left_side_df = transform_coordinates(left_side_df)
@@ -209,7 +209,7 @@ def page6():
 # Pre-requisites
 st.set_page_config(layout="wide")
 update_start_time()
-downloade_track_data()
+download_track_data()
 
 players   = ['Emil','Ana','Bot']
 opponents = ['Ana','Emil','Bot']
