@@ -18,7 +18,8 @@ from data_visualizations import plot_track, plot_speed
 
 
 def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opponent_name, i,
-                        left_side_df, right_side_df, zoom, center_dict, width, height, bearing, x_time_lim):
+                        left_side_df, right_side_df, zoom, center_dict, width, height, bearing, 
+                        x_time_lim,corner):
 
     if i/20 > filtered_cur_df['Local_Timestamp'].max() and i/20 > filtered_opp_df['Local_Timestamp'].max():
         print(f"Frame {i} skipped because it is out of bounds")
@@ -54,6 +55,7 @@ def create_single_frame(filtered_cur_df, filtered_opp_df, size, player_name, opp
     new_image.paste(tmp_local_image, (left, upper, right, lower))
     
     image_path = f"finished_animation_figures/frame_{i}.png"
+    image_path = f"finished_animation_figures/corner_{corner}_{i}_{player_name}_{opponent_name}.png"
     new_image.save(image_path)
 
     print(f"Finished creating frame {i}")
@@ -94,21 +96,12 @@ def render_corner(filtered_cur_df, filtered_opp_df, left_side_df, right_side_df,
 
     if not os.path.exists("animation_figures"):
         os.makedirs("animation_figures")
-    else:
-        for file in os.listdir("animation_figures"):
-            os.remove(os.path.join("animation_figures", file))
 
     if not os.path.exists("finished_animation_figures"):
         os.makedirs("finished_animation_figures")
-    else:
-        for file in os.listdir("finished_animation_figures"):
-            os.remove(os.path.join("finished_animation_figures", file))
 
     if not os.path.exists("animation_charts"):
         os.makedirs("animation_charts")
-    else: 
-        for file in os.listdir("animation_charts"):
-            os.remove(os.path.join("animation_charts", file))
 
     x_time_lim = max(filtered_cur_df['Local_Timestamp'].max(), filtered_cur_df['Local_Timestamp'].max())
 
@@ -116,7 +109,7 @@ def render_corner(filtered_cur_df, filtered_opp_df, left_side_df, right_side_df,
     with Pool(processes=cpu_count()//2) as pool:
         args = [(filtered_cur_df, filtered_opp_df, size, player_name, opponent_name, i,
                         left_side_df, right_side_df, zoom, center_dict, width, height, 
-                        bearing, x_time_lim) for i in range(frames)]
+                        bearing, x_time_lim, corner) for i in range(frames)]
         results = pool.starmap(create_single_frame, args)
         
         for i, image in enumerate(results):
@@ -168,9 +161,9 @@ if __name__ == "__main__":
                 max_timestamp = 40
                 max_lat = 50.3345 # north most point
                 min_lat = 50.3309 # south most point
-                max_lon = 6.94441 # east most point
+                max_lon = 6.94443 # east most point
                 min_lon = 6.93755   # west most point
-                zoom = 17
+                zoom = 16.8
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
@@ -178,11 +171,11 @@ if __name__ == "__main__":
                 
 
                 filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
-                                                zoom=zoom, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=800, bearing=-10, size=4,
+                                                zoom=zoom, center_dict={"Lat":50.3326 , "Lon":6.9405}, width=1400, height=600, bearing=-10, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
                 print("\n")
-                print("Current runtime:  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
+                print("Current runtime: {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
                 print("\n")
 
                 ### Corner 2 Gif Creation
@@ -196,20 +189,20 @@ if __name__ == "__main__":
                 max_lon = 6.95 # east most point
                 min_lon = 6.93   # west most point
                 center_dict = {"Lat":50.32636 , "Lon":6.9372}
-                zoom = 16.5
+                zoom = 16.3
                 bearing = -40
+
+                break
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
 
-                start_time = time.time()
-
                 filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
-                                                zoom=zoom, center_dict=center_dict, width=1400, height=800, bearing=bearing, size=4,
+                                                zoom=zoom, center_dict=center_dict, width=1400, height=600, bearing=bearing, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
 
                 print("\n")
-                print("Current runtime:  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
+                print("Current runtime: {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
                 print("\n")
 
                 ### Corner 3 Gif Creation
@@ -223,21 +216,24 @@ if __name__ == "__main__":
                 max_lon = 6.96 # east most point
                 min_lon = 6.9437   # west most point, 
                 center_dict = {"Lat":50.33661654164608 , "Lon":6.947228193315168}
-                zoom = 17.1
+                zoom = 16.9
                 bearing = -45
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
 
-                start_time = time.time()
-
                 filtered_cur_df = render_corner(filtered_cur_df, filtered_opp_df, left_side_df=left_side_df, right_side_df=right_side_df,
-                                                zoom=zoom, center_dict=center_dict, width=1400, height=800, bearing=bearing, size=4,
+                                                zoom=zoom, center_dict=center_dict, width=1400, height=600, bearing=bearing, size=4,
                                                 frames= 800 , player_name=player_1, opponent_name=player_2, corner = corner)
-                print("\n")
-                print("Current runtime:  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
-                print("\n")
-                
-    print("Creating all Animation finished in  {} minutes  {} seconds".format((time.time() - start_time)//60, (time.time() - start_time)%60))
+                print("\n"*2)
+                print("Current runtime: {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
+                print("\n"*2)
+
+                break
+        break
+
+    print("\n"*5)
+    print("Creating all Animation  {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
+
                 
 

@@ -52,6 +52,8 @@ def extract_key_points(cur_lap_df):
     speed_list = []
     description_list = []
 
+    cur_lap_df.reset_index(drop=True, inplace=True)
+
     all_speeds = cur_lap_df["Speed (Km/h)"]
 
     for idx,row in enumerate(cur_lap_df.iterrows()):
@@ -59,37 +61,27 @@ def extract_key_points(cur_lap_df):
         cur_latitude = row[1]["Latitude"]
         cur_longitude = row[1]["Longitude"]
         cur_time_stamp = row[1]["Timestamp"]
-        recorded_row = False
         if idx == 0:
             latitude_list.append(cur_latitude)
             longitude_list.append(cur_longitude)
             time_stamp_list.append(cur_time_stamp)
             speed_list.append(cur_speed)
             description_list.append("Starting Point")
-            recorded_row = True
-        elif (cur_speed == all_speeds[idx-150:idx+150].max()) and (cur_speed >= all_speeds[idx-150:idx-1].max()) and (cur_speed >= all_speeds[idx+1:idx+150].max()) :
+        elif (cur_speed == all_speeds[idx-150:idx+40].max()):
             latitude_list.append(cur_latitude)
             longitude_list.append(cur_longitude)
             time_stamp_list.append(cur_time_stamp)
             speed_list.append(cur_speed)
-            description_list.append(f"Max Speed at {cur_speed} Km/h")
-            recorded_row = True
-        elif (cur_speed == all_speeds[idx-150:idx+150].min()) and (cur_speed <= all_speeds[idx-150:idx-1].min()) and (cur_speed <= all_speeds[idx+1:idx+150].min()) :
+            description_list.append(f"DECELERATION \n Max Speed at {round(cur_speed,2)} Km/h")
+        elif (cur_speed == all_speeds[idx-150:idx+40].min()):
             latitude_list.append(cur_latitude)
             longitude_list.append(cur_longitude)
             time_stamp_list.append(cur_time_stamp)
             speed_list.append(cur_speed)
-            description_list.append(f"Min Speed at {cur_speed} Km/h")
-            recorded_row = True
-        else:
-            recorded_row = False
+            description_list.append(f"ACCELERATION \n Min Speed at {round(cur_speed,2)} Km/h")
+        else: 
+            pass
         
-        if recorded_row:
-            # only set prev_speed, prev_latitude, prev_longitude, prev_time_stamp if a row has been added
-            prev_rec_speed = cur_speed
-            prev_rec_latitude = cur_latitude
-            prev_rec_longitude = cur_longitude
-            prev_rec_time_stamp = cur_time_stamp
         prev_speed = cur_speed
         prev_latitude = cur_latitude
         prev_longitude = cur_longitude
@@ -106,7 +98,7 @@ def extract_key_points(cur_lap_df):
 
     end_time = time.time()
     print(f"Time taken to extract key points: {end_time - start_time}")
-    informative_df.drop_duplicates(subset=["Latitude", "Longitude", "Description"], inplace=True)
+    informative_df.drop_duplicates(subset=["Latitude", "Longitude", "Description"], inplace=True, keep="first")
     end_script_time = time.time()
 
     return informative_df 

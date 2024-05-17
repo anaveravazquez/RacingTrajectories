@@ -102,6 +102,41 @@ def update_track_data(opponent = False):
         st.session_state['cur_lap_df'] = specific_lap_df
 
 
+def find_slider_range(corner, player, opponent):
+    # Using the corner number, player name and opponent name, we can the amount of figures which corresponds with the range of the slider 
+    # count the amount of images inside "finished_animation_figures"
+    amount_of_images = 0
+    for file in os.listdir("finished_animation_figures"):
+        if (f"corner_{corner}" in file ) and (f"{player}_{opponent}" in file):
+            amount_of_images += 1
+    return amount_of_images
+
+
+def show_corner_analysis(corner_number):
+
+    player_name = st.session_state['name']
+    opp_name = st.session_state['name_opponent']
+
+    if opp_name == player_name:
+        st.write("Please select a different opponent")
+    else:
+        # Layout for button and slider
+        col1, col2 = st.columns([1, 15])
+
+        slider_max_range = find_slider_range(corner_number, player_name, opp_name)
+        frame_index = col2.slider("Choose a frame", min_value=0, max_value=slider_max_range, value=0)
+
+        # Play button
+        if col1.button('Play') or frame_index == 0:
+            # Show the GIF when the button is pressed
+            gif_path = f"Gifs/corner_animation_{corner_number}_{player_name}_{opp_name}.gif"
+            st.image(gif_path, use_column_width=True)
+
+        elif frame_index >= 1:
+            image_path = f"finished_animation_figures/corner_{corner_number}_{frame_index}_{player_name}_{opp_name}.png"
+            st.image(image_path, use_column_width=True)
+
+
 def page1():
     
     
@@ -142,7 +177,6 @@ def page1():
     
 def page2():
     
-    st.title("Overview of Lap")
     # Crete an element where you can select the lap number that is not a slider 
     left_side_df = st.session_state['left_side_df']
     right_side_df = st.session_state['right_side_df']
@@ -161,41 +195,15 @@ def page2():
 
 def page3():
 
-    st.title("Corner 1 Best Laps")
-    player_name = st.session_state['name']
-    opp_name = st.session_state['name_opponent']
-
-    if opp_name == player_name:
-        st.write("Please select a different opponent")
-    else:
-        gif_path = f"Gifs/corner_animation_1_{player_name}_{opp_name}.gif"
-        st.image(gif_path, use_column_width=True)
-
-
+    show_corner_analysis(1)
+    
 def page4():
 
-    st.title("Corner 2 Best Laps")
-
-    player_name = st.session_state['name']
-    opp_name = st.session_state['name_opponent']
-    if opp_name == player_name:
-        st.write("Please select a different opponent")
-    else:
-        gif_path = f"Gifs/corner_animation_2_{player_name}_{opp_name}.gif"
-        st.image(gif_path, use_column_width=True)
-
+    show_corner_analysis(2)
 
 def page5():
 
-    st.title("Corner 3 Best Laps")
-
-    player_name = st.session_state['name']
-    opp_name = st.session_state['name_opponent']
-    if opp_name == player_name:
-        st.write("Please select a different opponent")
-    else:
-        gif_path = f"Gifs/corner_animation_3_{player_name}_{opp_name}.gif"
-        st.image(gif_path, use_column_width=True)
+    show_corner_analysis(3)
 
 def page6():
 
