@@ -81,13 +81,19 @@ def extract_key_points(cur_lap_df):
             description_list.append(f"ACCELERATION \n Min Speed at {round(cur_speed,2)} Km/h")
         else: 
             pass
-        
-        prev_speed = cur_speed
-        prev_latitude = cur_latitude
-        prev_longitude = cur_longitude
-        prev_time_stamp = cur_time_stamp
 
-    
+    # Find the data of Overall Max Speed of the section 
+    max_speed_index = all_speeds.idxmax()
+    max_speed = all_speeds.max()
+    max_speed_latitude = cur_lap_df.loc[max_speed_index, "Latitude"]
+    max_speed_longitude = cur_lap_df.loc[max_speed_index, "Longitude"]
+    max_speed_time_stamp = cur_lap_df.loc[max_speed_index, "Timestamp"]
+    latitude_list.append(max_speed_latitude)
+    longitude_list.append(max_speed_longitude)
+    time_stamp_list.append(max_speed_time_stamp)
+    speed_list.append(max_speed)
+    description_list.append(f"DECELERATION Overall Max Speed at {round(max_speed,2)} Km/h")
+        
     informative_df = pd.DataFrame({
         "Timestamp": time_stamp_list,
         "Latitude": latitude_list,
@@ -98,7 +104,7 @@ def extract_key_points(cur_lap_df):
 
     end_time = time.time()
     print(f"Time taken to extract key points: {end_time - start_time}")
-    informative_df.drop_duplicates(subset=["Latitude", "Longitude", "Description"], inplace=True, keep="first")
+    # informative_df.drop_duplicates(subset=["Latitude", "Longitude", "Description"], inplace=True, keep="first")
     end_script_time = time.time()
 
     return informative_df 
