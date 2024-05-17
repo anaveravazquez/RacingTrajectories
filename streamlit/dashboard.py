@@ -229,7 +229,7 @@ selected_lap_number_opponent(name_opponent)
 
 # Dictionary of pages
 pages = {
-    "Select Dataset": page1,
+    "All Laps Data": page1,
     "Whole Track": page2,
     "Section 1"  : page3,
     "Section 2" : page4,
