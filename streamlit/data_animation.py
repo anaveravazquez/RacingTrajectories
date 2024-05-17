@@ -163,7 +163,7 @@ if __name__ == "__main__":
                 min_lat = 50.3309 # south most point
                 max_lon = 6.94443 # east most point
                 min_lon = 6.93755   # west most point
-                zoom = 16.8
+                zoom = 16.9
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
@@ -189,10 +189,8 @@ if __name__ == "__main__":
                 max_lon = 6.95 # east most point
                 min_lon = 6.93   # west most point
                 center_dict = {"Lat":50.32636 , "Lon":6.9372}
-                zoom = 16.3
+                zoom = 16.2
                 bearing = -40
-
-                break
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
                 filtered_opp_df = create_data_subset(opp_cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
@@ -216,7 +214,7 @@ if __name__ == "__main__":
                 max_lon = 6.96 # east most point
                 min_lon = 6.9437   # west most point, 
                 center_dict = {"Lat":50.33661654164608 , "Lon":6.947228193315168}
-                zoom = 16.9
+                zoom = 16.7
                 bearing = -45
 
                 filtered_cur_df = create_data_subset(cur_lap_df , min_timestamp, max_timestamp, min_lat, max_lat, min_lon, max_lon)
@@ -229,8 +227,6 @@ if __name__ == "__main__":
                 print("Current runtime: {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
                 print("\n"*2)
 
-                break
-        break
 
     print("\n"*5)
     print("Creating all Animation  {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
