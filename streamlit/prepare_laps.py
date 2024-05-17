@@ -83,16 +83,17 @@ def extract_key_points(cur_lap_df):
             pass
 
     # Find the data of Overall Max Speed of the section 
-    max_speed_index = all_speeds.idxmax()
-    max_speed = all_speeds.max()
-    max_speed_latitude = cur_lap_df.loc[max_speed_index, "Latitude"]
-    max_speed_longitude = cur_lap_df.loc[max_speed_index, "Longitude"]
-    max_speed_time_stamp = cur_lap_df.loc[max_speed_index, "Timestamp"]
-    latitude_list.append(max_speed_latitude)
-    longitude_list.append(max_speed_longitude)
-    time_stamp_list.append(max_speed_time_stamp)
-    speed_list.append(max_speed)
-    description_list.append(f"DECELERATION Overall Max Speed at {round(max_speed,2)} Km/h")
+    if len(cur_lap_df) > 2:
+        max_speed_index = all_speeds.idxmax()
+        max_speed = all_speeds.max()
+        max_speed_latitude = cur_lap_df.loc[max_speed_index, "Latitude"]
+        max_speed_longitude = cur_lap_df.loc[max_speed_index, "Longitude"]
+        max_speed_time_stamp = cur_lap_df.loc[max_speed_index, "Timestamp"]
+        latitude_list.append(max_speed_latitude)
+        longitude_list.append(max_speed_longitude)
+        time_stamp_list.append(max_speed_time_stamp)
+        speed_list.append(max_speed)
+        description_list.append(f"DECELERATION Overall Max Speed at {round(max_speed,2)} Km/h")
         
     informative_df = pd.DataFrame({
         "Timestamp": time_stamp_list,

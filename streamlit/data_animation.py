@@ -178,7 +178,6 @@ if __name__ == "__main__":
                 print("Current runtime: {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))
                 print("\n")
 
-                break
 
                 ### Corner 2 Gif Creation
                 corner = 2
@@ -230,7 +229,6 @@ if __name__ == "__main__":
                 print("\n"*2)
 
 
-        break
 
     print("\n"*5)
     print("Creating all Animation  {} hours  {} minutes  {} seconds".format((time.time() - start_time)//3600, (time.time() - start_time)%3600//60, (time.time() - start_time)%60))

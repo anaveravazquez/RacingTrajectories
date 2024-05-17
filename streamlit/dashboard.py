@@ -105,11 +105,11 @@ def update_track_data(opponent = False):
 def find_slider_range(corner, player, opponent):
     # Using the corner number, player name and opponent name, we can the amount of figures which corresponds with the range of the slider 
     # count the amount of images inside "finished_animation_figures"
-    amount_of_images = 0
+    amount_of_images = -1
     for file in os.listdir("finished_animation_figures"):
         if (f"corner_{corner}" in file ) and (f"{player}_{opponent}" in file):
             amount_of_images += 1
-    return amount_of_images
+    return (amount_of_images*5) 
 
 
 def show_corner_analysis(corner_number):
@@ -124,7 +124,7 @@ def show_corner_analysis(corner_number):
         col1, col2 = st.columns([1, 15])
 
         slider_max_range = find_slider_range(corner_number, player_name, opp_name)
-        frame_index = col2.slider("Choose a frame", min_value=0, max_value=slider_max_range, value=0)
+        frame_index = col2.slider("Choose a frame", min_value=0, max_value=slider_max_range, value=0, step=5)
 
         # Play button
         if col1.button('Play') or frame_index == 0:

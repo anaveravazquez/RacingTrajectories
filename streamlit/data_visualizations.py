@@ -14,7 +14,7 @@ import os
 
 sys.path.append("../")
 from data_loader import transform_coordinates, load_track_data, load_race_data
-from prepare_laps import prepare_laps_data, get_specific_lap, create_geodataframe, extract_key_points
+from prepare_laps import prepare_laps_data, get_specific_lap, extract_key_points
 
 
 def plot_track(cur_lap_df, opp_lap_df, 
@@ -32,15 +32,21 @@ def plot_track(cur_lap_df, opp_lap_df,
     center_lon = center_dict["Lon"]
 
     opp_informative_points = extract_key_points(opp_lap_df)
-    
-    opp_max_speed_points = opp_informative_points[opp_informative_points['Description'].str.contains("Max Speed")].reset_index(drop=True)
-    opp_min_speed_points = opp_informative_points[opp_informative_points['Description'].str.contains("Min Speed")].reset_index(drop=True)
+    if len(opp_informative_points) > 0:
+        opp_max_speed_points = opp_informative_points[opp_informative_points['Description'].str.contains("Max Speed")].reset_index(drop=True)
+        opp_min_speed_points = opp_informative_points[opp_informative_points['Description'].str.contains("Min Speed")].reset_index(drop=True)   
+    else:
+        opp_max_speed_points = pd.DataFrame()
+        opp_min_speed_points = pd.DataFrame()
 
     cur_informative_points = extract_key_points(cur_lap_df)
-    cur_max_speed_points = cur_informative_points[cur_informative_points['Description'].str.contains("Max Speed")].reset_index(drop=True)
-    cur_min_speed_points = cur_informative_points[cur_informative_points['Description'].str.contains("Min Speed")].reset_index(drop=True)
-  
-
+    if len(cur_informative_points) > 0:
+        cur_max_speed_points = cur_informative_points[cur_informative_points['Description'].str.contains("Max Speed")].reset_index(drop=True)
+        cur_min_speed_points = cur_informative_points[cur_informative_points['Description'].str.contains("Min Speed")].reset_index(drop=True)
+    else:
+        cur_max_speed_points = pd.DataFrame()
+        cur_min_speed_points = pd.DataFrame()
+        
     speed_bins = range(40, 180, 20)  # Bins for the speed
     speed_labels = range(50, 171, 20) # Midpoints of the bins
 
